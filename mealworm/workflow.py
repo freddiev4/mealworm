@@ -18,6 +18,7 @@ class MealPlanningWorkflow:
 
         # Initialize agents
         meal_fetcher_agent = MealFetcherAgent()
+        # TODO: replace this with a summarizer agent that can group the unique meals we have
         meal_analyzer_agent = MealAnalyzerAgent()
         meal_plan_generator_agent = MealPlanGeneratorAgent()
         
