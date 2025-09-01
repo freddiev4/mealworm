@@ -1,6 +1,8 @@
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import List, Optional, Dict, Any
+
+from pydantic import BaseModel, Field
+
 
 
 class Meal(BaseModel):
@@ -16,6 +18,7 @@ class Meal(BaseModel):
     tags: List[str] = Field(default_factory=list)
     last_made: Optional[datetime] = None
     rating: Optional[int] = None
+    page_content: Optional[str] = None
     raw_notion_data: Dict[str, Any] = Field(default_factory=dict)
 
 

@@ -3,6 +3,7 @@ from datetime import datetime
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
+
 from mealworm.models import MealPlanningState, WeeklyMealPlan, DayPlan, Meal
 from mealworm.config import Config
 
