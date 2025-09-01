@@ -44,5 +44,6 @@ class MealPlanningState(BaseModel):
     existing_meals: List[Meal] = Field(default_factory=list)
     meal_preferences: Dict[str, Any] = Field(default_factory=dict)
     weekly_plan: Optional[WeeklyMealPlan] = None
+    formatted_plan: Optional[str] = None
     error_message: Optional[str] = None
     step: str = "start"

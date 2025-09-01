@@ -47,30 +47,22 @@ def main():
             print(f"❌ Error: {result.error_message}")
             sys.exit(1)
         
-        if not result.weekly_plan:
+        if not result.formatted_plan:
             print("❌ No meal plan was generated")
             sys.exit(1)
         
-        # Format and display the result
+        # Display the formatted result
         print("\n" + "=" * 50)
         print("MEAL PLAN GENERATED SUCCESSFULLY!")
         print("=" * 50)
         
-        if args.format == "simple":
-            output = MealPlanFormatter.to_simple_template(result.weekly_plan)
-        elif args.format == "markdown":
-            output = MealPlanFormatter.to_markdown(result.weekly_plan)
-        else:  # text
-            output = MealPlanFormatter.to_text(result.weekly_plan)
-        
-        print(output)
+        print(result.formatted_plan)
         
         # Show summary
         print("\n" + "=" * 50)
         print("SUMMARY")
         print("=" * 50)
         print(f"📊 Total meals found in Notion: {len(result.existing_meals)}")
-        print(f"📅 Days planned: {len(result.weekly_plan.days)}")
         print(f"🎯 Planning completed successfully!")
         
         if result.meal_preferences.get("analysis"):

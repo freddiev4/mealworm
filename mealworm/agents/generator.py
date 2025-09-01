@@ -34,7 +34,6 @@ class MealPlanGeneratorAgent:
                     meal_desc += f": {meal.description[:100]}..."
                 available_meals.append(meal_desc)
 
-
             analysis = preferences.get('analysis', 'No analysis available')
             
             planning_prompt = f"""
@@ -51,46 +50,46 @@ class MealPlanGeneratorAgent:
             
             Analysis of existing meals: {analysis}
             
-            Please respond with a structured meal plan in this exact format:
+            Please respond with a structured meal plan in this exact format, excluding the <start-of-format> and <end-of-format> tags:
 
             <start-of-format>
-            # Sunday:
-            **Lunch:**
-            **Dinner:**
-
-            # Monday:
-            **Lunch:**
-            **Dinner:**
-
-            # Tuesday:
-            **Lunch:**
-            **Dinner:**
+            # 🍽️ Weekly Meal Plan
+            **Week starting:** [Current Date]
             
-            # Wednesday:
-            **Lunch:**
-            **Dinner:**
-
-            # Thursday:
-            **Lunch:**
-            **Dinner:**
-
-            # Friday:
-            **Lunch:**
-            **Dinner:**
-
-            **Lunch:**
-            **Dinner:**
-
-            # Saturday:
-            **Lunch:**
-            **Dinner:**
-
-            # Sunday:
-            **Lunch:**
-            **Dinner:**
+            ## Sunday
+            - **Lunch:** [Meal Name or "Eat out" or "Leftovers"]
+            - **Dinner:** [Meal Name]
+            
+            ## Monday
+            - **Lunch:** [Meal Name or "Eat out" or "Leftovers"]
+            - **Dinner:** [Meal Name]
+            
+            ## Tuesday
+            - **Lunch:** [Meal Name or "Eat out" or "Leftovers"]
+            - **Dinner:** [Meal Name]
+            
+            ## Wednesday
+            - **Lunch:** [Meal Name or "Eat out" or "Leftovers"]
+            - **Dinner:** [Meal Name]
+            
+            ## Thursday
+            - **Lunch:** [Meal Name or "Eat out" or "Leftovers"]
+            - **Dinner:** [Meal Name]
+            
+            ## Friday
+            - **Lunch:** [Meal Name or "Eat out" or "Leftovers"]
+            - **Dinner:** [Meal Name]
+            
+            ## Saturday
+            - **Lunch:** [Meal Name or "Eat out" or "Leftovers"]
+            - **Dinner:** [Meal Name]
+            
+            ## Sunday
+            - **Lunch:** [Meal Name or "Eat out" or "Leftovers"]
+            - **Dinner:** [Meal Name]
             
             ## Notes:
-            <any additional planning notes or grocery considerations>
+            [Any additional planning notes or grocery considerations]
             <end-of-format>
             """
             
@@ -102,13 +101,10 @@ class MealPlanGeneratorAgent:
             response = self.llm.invoke(messages)
             plan_text = response.content
             
-            # Parse the response into structured data
-            weekly_plan = self._parse_meal_plan_response(plan_text, meals)
-            
             print("✅ Weekly meal plan generated")
             
             response = {
-                "weekly_plan": weekly_plan,
+                "formatted_plan": plan_text,
                 "step": "plan_generated"
             }
 
@@ -121,50 +117,3 @@ class MealPlanGeneratorAgent:
                 "step": "error"
             }
             return response
-
-    def _parse_meal_plan_response(self, plan_text: str, available_meals: list) -> WeeklyMealPlan:
-        """Parse the AI response into a structured meal plan"""
-        lines = plan_text.strip().split('\n')
-        days = []
-        notes = ""
-        
-        # Create a lookup for meals by title
-        meal_lookup = {meal.title.lower(): meal for meal in available_meals}
-        
-        for line in lines:
-            line = line.strip()
-            if ':' in line and any(day in line for day in Config.DAYS_OF_WEEK):
-                parts = line.split(':', 1)
-                if len(parts) == 2:
-                    day_name, meal_name = parts
-                    day_name = day_name.strip()
-                    meal_name = meal_name.strip()
-                
-                    # Find the matching meal
-                    selected_meal = None
-                    for title, meal in meal_lookup.items():
-                        if title in meal_name.lower() or meal_name.lower() in title:
-                            selected_meal = meal
-                            break
-                    
-                    # If no exact match, create a placeholder meal
-                    if not selected_meal and meal_name:
-                        selected_meal = Meal(
-                            id="placeholder",
-                            title=meal_name,
-                            description="Selected from meal plan"
-                        )
-                    
-                    days.append(DayPlan(
-                        day=day_name,
-                        dinner=selected_meal
-                    ))
-            
-            elif line.lower().startswith('notes:'):
-                notes = line.split(':', 1)[1].strip()
-        
-        return WeeklyMealPlan(
-            week_starting=datetime.now(),
-            days=days,
-            notes=notes
-        )

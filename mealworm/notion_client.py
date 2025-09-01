@@ -198,6 +198,7 @@ class NotionMCPClient:
                 meal = self._parse_page_to_meal(page)
                 if meal:
                     meals.append(meal)
+                break
             except Exception as e:
                 print(f"Error parsing page to meal: {e}")
                 continue

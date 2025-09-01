@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
 """
 Test script to check Notion MCP connection and available tools
 """
 
-import asyncio
 import json
 import os
+
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
 async def test_notion_mcp():
@@ -92,5 +91,3 @@ async def test_notion_mcp():
         import traceback
         traceback.print_exc()
 
-if __name__ == "__main__":
-    asyncio.run(test_notion_mcp())
