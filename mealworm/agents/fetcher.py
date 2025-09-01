@@ -32,11 +32,6 @@ class MealFetcherAgent:
                     meals = self.notion_client.extract_meals_from_pages(pages)
                     all_meal_planning_pages.extend(meals)
             
-            # Also search for individual meal pages
-            meal_pages = self.notion_client.search_pages(query="meal recipe")
-            additional_meal_planning_pages = self.notion_client.extract_meals_from_pages(meal_pages)
-            all_meal_planning_pages.extend(additional_meal_planning_pages)
-            
             # Remove duplicates based on title
             unique_meal_planning_pages = []
             seen_titles = set()

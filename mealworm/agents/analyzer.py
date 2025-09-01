@@ -40,10 +40,11 @@ class MealAnalyzerAgent:
                 
                 # Add page content if available
                 if meal.page_content:
-                    # Truncate content to avoid token limits
-                    content_preview = meal.page_content[:500] + "..." if len(meal.page_content) > 500 else meal.page_content
-                    meal_info += f"\n  Content: {content_preview}"
-
+                    meal_info += f"\n  Content: {meal.page_content}"
+                    # truncate content to avoid token limits
+                    if len(meal.page_content) > 500:
+                        print(f"warning: page content for {meal.title} is longer than 500 characters: {len(meal.page_content)} characters")
+                    
                 meals_summary.append(meal_info)
             
             analysis_prompt = f"""
@@ -61,8 +62,6 @@ class MealAnalyzerAgent:
             Focus on insights from the actual meal content (ingredients, instructions, etc.) rather than just metadata.
             Keep your response concise and focused on insights for meal planning.
             """
-
-            breakpoint()
             
             messages = [
                 SystemMessage(content="You are a meal planning assistant analyzing existing recipes."),
