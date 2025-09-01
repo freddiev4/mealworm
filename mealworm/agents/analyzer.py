@@ -30,7 +30,8 @@ class MealAnalyzerAgent:
             
             # Create analysis prompt
             meals_summary = []
-            # Limit to avoid token limits
+            # NOTE: limit to avoid token limits for now.
+            # remove this limit later when we can summarize the content.
             for meal in meals[:20]:
                 meal_info = f"- {meal.title}"
                 if meal.cuisine_type:
@@ -41,7 +42,7 @@ class MealAnalyzerAgent:
                 # Add page content if available
                 if meal.page_content:
                     meal_info += f"\n  Content: {meal.page_content}"
-                    # truncate content to avoid token limits
+                    # NOTE: we won't truncate content for now.
                     if len(meal.page_content) > 500:
                         print(f"warning: page content for {meal.title} is longer than 500 characters: {len(meal.page_content)} characters")
                     
