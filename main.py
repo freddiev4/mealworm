@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+"""
+Mealworm - AI-powered meal planning with Notion integration
+
+Usage:
+    python main.py [options]
+
+Options:
+    --format {text,simple,markdown}  Output format (default: text)
+    --help                          Show this help message
+"""
+
+import sys
+import argparse
+from mealworm.config import Config
+from mealworm.workflow import MealPlanningWorkflow
+from mealworm.formatter import MealPlanFormatter
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Mealworm - AI-powered meal planning with Notion integration"
+    )
+    parser.add_argument(
+        "--format",
+        choices=["text", "simple", "markdown"],
+        default="text",
+        help="Output format for the meal plan"
+    )
+    
+    args = parser.parse_args()
+    
+    try:
+        # Validate configuration
+        Config.validate()
+        
+        print("🐛 Welcome to Mealworm - AI Meal Planning")
+        print("=========================================")
+        print()
+        
+        # Create and run the workflow
+        workflow = MealPlanningWorkflow()
+        result = workflow.run()
+        
+        # Check for errors
+        if result.error_message:
+            print(f"❌ Error: {result.error_message}")
+            sys.exit(1)
+        
+        if not result.weekly_plan:
+            print("❌ No meal plan was generated")
+            sys.exit(1)
+        
+        # Format and display the result
+        print("\n" + "=" * 50)
+        print("MEAL PLAN GENERATED SUCCESSFULLY!")
+        print("=" * 50)
+        
+        if args.format == "simple":
+            output = MealPlanFormatter.to_simple_template(result.weekly_plan)
+        elif args.format == "markdown":
+            output = MealPlanFormatter.to_markdown(result.weekly_plan)
+        else:  # text
+            output = MealPlanFormatter.to_text(result.weekly_plan)
+        
+        print(output)
+        
+        # Show summary
+        print("\n" + "=" * 50)
+        print("SUMMARY")
+        print("=" * 50)
+        print(f"📊 Total meals found in Notion: {len(result.existing_meals)}")
+        print(f"📅 Days planned: {len(result.weekly_plan.days)}")
+        print(f"🎯 Planning completed successfully!")
+        
+        if result.meal_preferences.get("analysis"):
+            print(f"\n📈 Meal Analysis:")
+            print(result.meal_preferences["analysis"])
+    
+    except KeyboardInterrupt:
+        print("\n👋 Goodbye!")
+        sys.exit(0)
+    
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
