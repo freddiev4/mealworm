@@ -24,31 +24,31 @@ class MealFetcherAgent:
             # Find meal-related databases
             databases = self.notion_client.find_meal_databases()
             
-            all_meals = []
+            all_meal_planning_pages = []
             for db in databases:
                 db_id = db.get("id", "")
                 if db_id:
                     pages = self.notion_client.get_database_pages(db_id)
                     meals = self.notion_client.extract_meals_from_pages(pages)
-                    all_meals.extend(meals)
+                    all_meal_planning_pages.extend(meals)
             
             # Also search for individual meal pages
             meal_pages = self.notion_client.search_pages(query="meal recipe")
-            additional_meals = self.notion_client.extract_meals_from_pages(meal_pages)
-            all_meals.extend(additional_meals)
+            additional_meal_planning_pages = self.notion_client.extract_meals_from_pages(meal_pages)
+            all_meal_planning_pages.extend(additional_meal_planning_pages)
             
             # Remove duplicates based on title
-            unique_meals = []
+            unique_meal_planning_pages = []
             seen_titles = set()
-            for meal in all_meals:
+            for meal in all_meal_planning_pages:
                 if meal.title.lower() not in seen_titles:
-                    unique_meals.append(meal)
+                    unique_meal_planning_pages.append(meal)
                     seen_titles.add(meal.title.lower())
             
-            print(f"✅ Found {len(unique_meals)} unique meals")
+            print(f"✅ Found {len(unique_meal_planning_pages)} unique meal planning pages")
             
             return {
-                "existing_meals": unique_meals,
+                "existing_meals": unique_meal_planning_pages,
                 "step": "meals_fetched"
             }
         

@@ -1,11 +1,12 @@
-from typing import List, Dict, Any, Optional
-import json
 import asyncio
-import os
-from mcp import StdioServerParameters
+import json
+
+from typing import List, Dict, Any, Optional
+
 from langchain_mcp_adapters.client import MultiServerMCPClient
-from .models import Meal
-from .config import Config
+
+from mealworm.models import Meal
+from mealworm.config import Config
 
 
 class NotionMCPClient:
@@ -140,6 +141,29 @@ class NotionMCPClient:
             print(f"Error getting page content: {e}")
             return {}
     
+    def get_page_blocks(self, page_id: str) -> List[Dict[str, Any]]:
+        """Get the blocks (content) of a specific page using the 'API-get-block-children' tool"""
+        try:
+            arguments = {
+                "block_id": page_id
+            }
+            
+            result = self._call_mcp_sync("API-get-block-children", arguments)
+            
+            # Parse the result to extract blocks
+            if isinstance(result, str):
+                try:
+                    result = json.loads(result)
+                except json.JSONDecodeError:
+                    return []
+            
+            # Extract blocks from the response
+            blocks = result.get("results", [])
+            return blocks
+        except Exception as e:
+            print(f"Error getting page blocks: {e}")
+            return []
+    
     def find_meal_databases(self) -> List[Dict[str, Any]]:
         """Find databases that likely contain meal/recipe information"""
         try:
@@ -194,11 +218,18 @@ class NotionMCPClient:
             if not title:
                 return None
             
+            # Get page content (blocks)
+            page_id = page.get("id", "")
+            page_blocks = []
+            if page_id:
+                page_blocks = self.get_page_blocks(page_id)
+            
             # Extract other properties
             meal_data = {
                 "id": page.get("id", ""),
                 "title": title,
-                "raw_notion_data": page
+                "raw_notion_data": page,
+                "page_content": self._extract_text_from_blocks(page_blocks)
             }
             
             # Try to extract common meal properties
@@ -235,3 +266,89 @@ class NotionMCPClient:
         except Exception as e:
             print(f"Error parsing meal data: {e}")
             return None
+    
+    def _extract_text_from_blocks(self, blocks: List[Dict[str, Any]]) -> str:
+        """Extract readable text from Notion blocks"""
+        if not blocks:
+            return ""
+        
+        text_parts = []
+        
+        for block in blocks:
+            block_type = block.get("type", "")
+            block_data = block.get(block_type, {})
+            
+            if block_type == "paragraph":
+                # Extract text from paragraph
+                rich_text = block_data.get("rich_text", [])
+                text = "".join([t.get("plain_text", "") for t in rich_text])
+                if text.strip():
+                    text_parts.append(text)
+            
+            elif block_type == "heading_1":
+                # Extract text from heading 1
+                rich_text = block_data.get("rich_text", [])
+                text = "".join([t.get("plain_text", "") for t in rich_text])
+                if text.strip():
+                    text_parts.append(f"# {text}")
+            
+            elif block_type == "heading_2":
+                # Extract text from heading 2
+                rich_text = block_data.get("rich_text", [])
+                text = "".join([t.get("plain_text", "") for t in rich_text])
+                if text.strip():
+                    text_parts.append(f"## {text}")
+            
+            elif block_type == "heading_3":
+                # Extract text from heading 3
+                rich_text = block_data.get("rich_text", [])
+                text = "".join([t.get("plain_text", "") for t in rich_text])
+                if text.strip():
+                    text_parts.append(f"### {text}")
+            
+            elif block_type == "bulleted_list_item":
+                # Extract text from bulleted list item
+                rich_text = block_data.get("rich_text", [])
+                text = "".join([t.get("plain_text", "") for t in rich_text])
+                if text.strip():
+                    text_parts.append(f"- {text}")
+            
+            elif block_type == "numbered_list_item":
+                # Extract text from numbered list item
+                rich_text = block_data.get("rich_text", [])
+                text = "".join([t.get("plain_text", "") for t in rich_text])
+                if text.strip():
+                    text_parts.append(f"1. {text}")
+            
+            elif block_type == "to_do":
+                # Extract text from to-do item
+                rich_text = block_data.get("rich_text", [])
+                text = "".join([t.get("plain_text", "") for t in rich_text])
+                checked = block_data.get("checked", False)
+                if text.strip():
+                    checkbox = "[x]" if checked else "[ ]"
+                    text_parts.append(f"{checkbox} {text}")
+            
+            elif block_type == "toggle":
+                # Extract text from toggle
+                rich_text = block_data.get("rich_text", [])
+                text = "".join([t.get("plain_text", "") for t in rich_text])
+                if text.strip():
+                    text_parts.append(f"<details>\n<summary>{text}</summary>")
+            
+            elif block_type == "quote":
+                # Extract text from quote
+                rich_text = block_data.get("rich_text", [])
+                text = "".join([t.get("plain_text", "") for t in rich_text])
+                if text.strip():
+                    text_parts.append(f"> {text}")
+            
+            elif block_type == "callout":
+                # Extract text from callout
+                rich_text = block_data.get("rich_text", [])
+                text = "".join([t.get("plain_text", "") for t in rich_text])
+                if text.strip():
+                    icon = block_data.get("icon", {}).get("emoji", "💡")
+                    text_parts.append(f"{icon} {text}")
+        
+        return "\n".join(text_parts)

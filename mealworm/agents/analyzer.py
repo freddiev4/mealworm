@@ -2,6 +2,7 @@ from typing import Dict, Any
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
+
 from mealworm.models import MealPlanningState
 from mealworm.config import Config
 
@@ -21,19 +22,28 @@ class MealAnalyzerAgent:
             
             meals = state.existing_meals
             if not meals:
-                return {
+                response = {
                     "meal_preferences": {"note": "No existing meals found"},
                     "step": "meals_analyzed"
                 }
+                return response
             
             # Create analysis prompt
             meals_summary = []
-            for meal in meals[:50]:  # Limit to avoid token limits
+            # Limit to avoid token limits
+            for meal in meals[:20]:
                 meal_info = f"- {meal.title}"
                 if meal.cuisine_type:
                     meal_info += f" ({meal.cuisine_type})"
                 if meal.tags:
                     meal_info += f" [Tags: {', '.join(meal.tags)}]"
+                
+                # Add page content if available
+                if meal.page_content:
+                    # Truncate content to avoid token limits
+                    content_preview = meal.page_content[:500] + "..." if len(meal.page_content) > 500 else meal.page_content
+                    meal_info += f"\n  Content: {content_preview}"
+
                 meals_summary.append(meal_info)
             
             analysis_prompt = f"""
@@ -42,13 +52,17 @@ class MealAnalyzerAgent:
             {chr(10).join(meals_summary)}
             
             Please provide a brief analysis including:
-            1. Most common cuisine types
-            2. Common meal categories/tags
-            3. Any patterns in meal complexity or types
-            4. Suggested variety for weekly planning
+            1. Most common cuisine types and cooking styles
+            2. Common meal categories/tags and ingredients
+            3. Any patterns in meal complexity, prep time, or cooking methods
+            4. Suggested variety for weekly planning based on the actual meal content
+            5. Common ingredients and cooking techniques used
             
+            Focus on insights from the actual meal content (ingredients, instructions, etc.) rather than just metadata.
             Keep your response concise and focused on insights for meal planning.
             """
+
+            breakpoint()
             
             messages = [
                 SystemMessage(content="You are a meal planning assistant analyzing existing recipes."),
