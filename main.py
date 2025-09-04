@@ -14,9 +14,19 @@ import sys
 import argparse
 from mealworm.config import Config
 from mealworm.workflow import MealPlanningWorkflow
-from mealworm.formatter import MealPlanFormatter
 
+from openinference.instrumentation.langchain import LangChainInstrumentor
+from quotientai import QuotientAI
 
+quotient = QuotientAI()
+
+quotient.tracer.init(
+    app_name='mealworm',
+    environment='development',
+    instruments=[LangChainInstrumentor()],
+)
+
+@quotient.trace()
 def main():
     parser = argparse.ArgumentParser(
         description="Mealworm - AI-powered meal planning with Notion integration"

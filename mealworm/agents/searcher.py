@@ -3,7 +3,6 @@ from typing import Dict, Any
 from langchain_openai import ChatOpenAI
 from tavily import TavilyClient
 
-
 from mealworm.models import MealPlanningState
 from mealworm.notion_client import NotionMCPClient
 from mealworm.config import Config
@@ -25,15 +24,11 @@ class MealIngredientSearcherAgent:
         """Fetch existing meals from Notion"""
         try:
             print("🔍 Searching for ingredients...")
-            
             # get the urls of the meals
             # find their ingredients from the urls using Tavily to extract the page contents
             # using tavily.extract(url)
             # return the ingredients for each meal
             # fill in the ingredients for the meal in the plan
-
-            
-        
         except Exception as e:
             print(f"❌ Error fetching meals: {e}")
             return {
