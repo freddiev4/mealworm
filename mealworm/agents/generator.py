@@ -1,10 +1,9 @@
 from typing import Dict, Any
-from datetime import datetime
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from mealworm.models import MealPlanningState, WeeklyMealPlan, DayPlan, Meal
+from mealworm.models import MealPlanningState
 from mealworm.config import Config
 
 
@@ -17,7 +16,9 @@ class MealPlanGeneratorAgent:
         )
 
     def generate_weekly_plan(self, state: MealPlanningState) -> Dict[str, Any]:
-        """Generate a weekly meal plan using AI"""
+        """
+        Generate a weekly meal plan using AI
+        """
         try:
             print("📅 Generating weekly meal plan...")
             
