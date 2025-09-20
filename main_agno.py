@@ -15,7 +15,7 @@ import sys
 
 from pathlib import Path
 
-from mealworm.agents.agno_agent import create_meal_planning_agent, START_OF_WEEK
+from mealworm.agents.meal_planner import create_meal_planning_agent, START_OF_WEEK
 from openinference.instrumentation.agno import AgnoInstrumentor
 from quotientai import QuotientAI
 
