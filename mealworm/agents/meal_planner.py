@@ -11,28 +11,7 @@ from agno.tools.local_file_system import LocalFileSystemTools
 from agno.tools.tavily import TavilyTools
 from agno.vectordb.pgvector import PgVector
 
-db_url = "postgresql+psycopg://freddie:ai@localhost:5432/freddie"
-
-knowledge = Knowledge(
-    vector_db=PgVector(
-        table_name="meal_plans",
-        db_url=db_url,
-    ),
-)
-
-# Add Markdown content from historical meal plans to knowledge base
-historical_plans_dir = Path("historical-meal-plans")
-if historical_plans_dir.exists():
-    print(f"Adding historical meal plans to knowledge base from {historical_plans_dir}")
-    paths = historical_plans_dir.glob("*.md")
-    knowledge.add_contents(
-        paths=paths,
-        reader=MarkdownReader(),
-        skip_if_exists=True,
-    )
-        
-print(f"Added {len(list(paths))} meal plans to knowledge base")
-
+from mealworm.db.url import get_db_url
 
 def get_start_of_coming_week():
     today = datetime.now()
@@ -191,7 +170,32 @@ Dinner:
 </TEMPLATE>
 """
 
-def create_meal_planning_agent():
+async def get_meal_planning_knowledge():
+    db_url = get_db_url()
+
+    knowledge = Knowledge(
+        vector_db=PgVector(
+            table_name="meal_plans",
+            db_url=db_url,
+        ),
+    )
+
+    # Add Markdown content from historical meal plans to knowledge base
+    historical_plans_dir = Path("historical-meal-plans")
+    if historical_plans_dir.exists():
+        print(f"Adding historical meal plans to knowledge base from {historical_plans_dir}")
+        paths = list(historical_plans_dir.glob("*.md"))
+        if paths:
+            await knowledge.add_contents_async(
+                paths=paths,
+                reader=MarkdownReader(),
+                skip_if_exists=True,
+            )
+            print(f"Added {len(paths)} meal plans to knowledge base")
+    return knowledge
+
+
+async def create_meal_planning_agent():
     """Create and return a configured meal planning agent"""
     agent = Agent(
         model=Claude(id="claude-sonnet-4-0"),
@@ -201,7 +205,7 @@ def create_meal_planning_agent():
             FirecrawlTools(enable_scrape=True, enable_crawl=True),
             LocalFileSystemTools(target_directory=".")
         ],
-        knowledge=knowledge,
+        knowledge=await get_meal_planning_knowledge(),
         search_knowledge=True,
         markdown=True,
     )
