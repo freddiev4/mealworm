@@ -11,35 +11,7 @@ from agno.tools.local_file_system import LocalFileSystemTools
 from agno.tools.tavily import TavilyTools
 from agno.vectordb.pgvector import PgVector
 
-
-from pydantic import BaseModel
-
-db_url = "postgresql+psycopg://freddie:ai@localhost:5432/freddie"
-
-knowledge = Knowledge(
-    vector_db=PgVector(
-        table_name="meal_plans",
-        db_url=db_url,
-    ),
-)
-
-# Add Markdown content from historical meal plans to knowledge base
-historical_plans_dir = Path("historical-meal-plans")
-if historical_plans_dir.exists():
-    print(f"Adding historical meal plans to knowledge base from {historical_plans_dir}")
-    paths = historical_plans_dir.glob("*.md")
-    knowledge.add_contents(
-        paths=paths,
-        reader=MarkdownReader(),
-        skip_if_exists=True,
-    )
-        
-print(f"Added {len(list(paths))} meal plans to knowledge base")
-
-
-class MealPlanJudge(BaseModel):
-    reason: str
-    valid: bool
+from mealworm.db.url import get_db_url
 
 def get_start_of_coming_week():
     today = datetime.now()
@@ -52,13 +24,6 @@ def get_start_of_coming_week():
     return start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
 
 START_OF_WEEK = get_start_of_coming_week().strftime('%Y-%m-%d')
-
-LLM_JUDGE_LEFTOVERS_FROM_DINNER = """
-You are a judge that is tasked with evaluating whether a meal plan is valid.
-A meal plan is valid if for each lunch dish, there is a corresponding dinner dish from the previous day.
-
-Return the reason why it is valid or invalid, along with your reasoning.
-"""
 
 # NOTE: modify this eventually to add
 CUSTOM_INSTRUCTIONS = f"""
@@ -205,7 +170,32 @@ Dinner:
 </TEMPLATE>
 """
 
-def create_meal_planning_agent():
+async def get_meal_planning_knowledge():
+    db_url = get_db_url()
+
+    knowledge = Knowledge(
+        vector_db=PgVector(
+            table_name="meal_plans",
+            db_url=db_url,
+        ),
+    )
+
+    # Add Markdown content from historical meal plans to knowledge base
+    historical_plans_dir = Path("historical-meal-plans")
+    if historical_plans_dir.exists():
+        print(f"Adding historical meal plans to knowledge base from {historical_plans_dir}")
+        paths = list(historical_plans_dir.glob("*.md"))
+        if paths:
+            await knowledge.add_contents_async(
+                paths=paths,
+                reader=MarkdownReader(),
+                skip_if_exists=True,
+            )
+            print(f"Added {len(paths)} meal plans to knowledge base")
+    return knowledge
+
+
+async def create_meal_planning_agent():
     """Create and return a configured meal planning agent"""
     agent = Agent(
         model=Claude(id="claude-sonnet-4-0"),
@@ -215,7 +205,7 @@ def create_meal_planning_agent():
             FirecrawlTools(enable_scrape=True, enable_crawl=True),
             LocalFileSystemTools(target_directory=".")
         ],
-        knowledge=knowledge,
+        knowledge=await get_meal_planning_knowledge(),
         search_knowledge=True,
         markdown=True,
     )
