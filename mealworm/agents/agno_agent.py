@@ -11,9 +11,6 @@ from agno.tools.local_file_system import LocalFileSystemTools
 from agno.tools.tavily import TavilyTools
 from agno.vectordb.pgvector import PgVector
 
-
-from pydantic import BaseModel
-
 db_url = "postgresql+psycopg://freddie:ai@localhost:5432/freddie"
 
 knowledge = Knowledge(
@@ -37,10 +34,6 @@ if historical_plans_dir.exists():
 print(f"Added {len(list(paths))} meal plans to knowledge base")
 
 
-class MealPlanJudge(BaseModel):
-    reason: str
-    valid: bool
-
 def get_start_of_coming_week():
     today = datetime.now()
     # Get days until next Sunday (6 = Sunday, 0 = Monday)
@@ -52,13 +45,6 @@ def get_start_of_coming_week():
     return start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
 
 START_OF_WEEK = get_start_of_coming_week().strftime('%Y-%m-%d')
-
-LLM_JUDGE_LEFTOVERS_FROM_DINNER = """
-You are a judge that is tasked with evaluating whether a meal plan is valid.
-A meal plan is valid if for each lunch dish, there is a corresponding dinner dish from the previous day.
-
-Return the reason why it is valid or invalid, along with your reasoning.
-"""
 
 # NOTE: modify this eventually to add
 CUSTOM_INSTRUCTIONS = f"""
