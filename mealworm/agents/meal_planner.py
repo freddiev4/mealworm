@@ -25,6 +25,17 @@ def get_start_of_coming_week():
 
 START_OF_WEEK = get_start_of_coming_week().strftime('%Y-%m-%d')
 
+# Things that currently work well:
+# - looking at previous meal plans
+# - writing up new ones with the existing "other items"
+# - following the format of Sunday, Monday, etc
+# 
+# Things that don't work well right now:
+# - doesn't always follow the rubric exactly: sometimes I'll get >1 chicken dish, or >2 fish dishes.
+# - lunch for current day is leftovers of previous day
+# - doesn't always do a proper web search for the meal it's trying to get a recipe for
+# - I don't think it always looks through the previous 30 meals
+
 # NOTE: modify this eventually to add
 CUSTOM_INSTRUCTIONS = f"""
 ## Meal Plan Generation
