@@ -49,7 +49,7 @@ async def chat_response_streamer(agent: Agent, message: str) -> AsyncGenerator:
     Yields:
         Text chunks from the agent response
     """
-    root_span = quotient.tracer.start_span(f'{agent.id}-run')
+    root_span = quotient.tracer.start_span(f'{agent.name}-run')
 
     stream_ctx = use_span(root_span, end_on_exit=False)
 
