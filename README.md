@@ -1,24 +1,23 @@
 # 🐛 Mealworm - AI-Powered Meal Planning
 
-Mealworm is an intelligent meal planning application that integrates with your Notion workspace to create personalized weekly meal plans. It uses LangGraph for workflow orchestration, OpenAI's GPT models for intelligent meal selection, and the Notion MCP server for seamless workspace integration.
+Mealworm is an intelligent meal planning application that creates personalized weekly meal plans using AI agents. It features a modern FastAPI backend with PostgreSQL database, Docker containerization, and intelligent meal planning capabilities.
 
 ## Features
 
-- 🔗 **Notion MCP Integration**: Automatically fetches existing meals and recipes from your Notion workspace using the official Notion MCP server
-- 🧠 **AI-Powered Planning**: Uses GPT-4 to analyze your meal preferences and generate balanced weekly plans
+- 🧠 **AI-Powered Planning**: Uses advanced AI agents to generate balanced weekly meal plans
 - 📅 **Custom Template**: Follows your specified Sunday-Saturday-Sunday format
-- 🔄 **Workflow Orchestration**: Uses LangGraph for robust, step-by-step meal planning process
-- 📊 **Multiple Output Formats**: Text, simple template, or markdown formats
-- 🎯 **Smart Analysis**: Provides insights about your cooking patterns and meal preferences
+- 🔄 **Agent-Based Architecture**: Uses specialized AI agents for meal planning and analysis
+- 🐳 **Docker Ready**: Fully containerized with Docker Compose for easy deployment
+- 🗄️ **PostgreSQL Database**: Robust data storage with pgvector support
+- 🌐 **REST API**: Modern FastAPI backend with automatic documentation
+- 📊 **Historical Tracking**: Archives and tracks your meal planning history
 
 ## Setup
 
 ### Prerequisites
 
-- Python 3.8+
-- OpenAI API key
-- Notion workspace with meal/recipe pages
-- Notion integration token
+- Docker and Docker Compose
+- OpenAI API key (or other AI provider API keys)
 
 ### Installation
 
@@ -28,62 +27,74 @@ git clone https://github.com/freddiev4/mealworm.git
 cd mealworm
 ```
 
-2. Install dependencies:
+2. Set up environment variables:
 ```bash
-pip install -r requirements.txt
-```
-
-3. Set up environment variables:
-```bash
-cp .env.example .env
+cp example.env .env
 # Edit .env with your API keys
 ```
 
-4. **Set up Notion Integration**:
-   - Go to [https://www.notion.so/my-integrations](https://www.notion.so/my-integrations)
-   - Click "New integration"
-   - Give it a name (e.g., "Mealworm AI")
-   - Select your workspace
-   - Click "Submit"
-   - Copy the "Internal Integration Token" (starts with `secret_`)
-   - Set the environment variable: `export NOTION_API_KEY="your_token_here"`
+3. Start the application:
+```bash
+docker-compose up -d
+```
 
-5. **Share your Notion pages with the integration**:
-   - Go to any Notion page or database you want to access
-   - Click the "Share" button (top right)
-   - Click "Invite"
-   - Search for your integration name
-   - Select it and click "Invite"
 
 ## Usage
 
-### Basic Usage
+### Docker Setup (Recommended)
+
+Start the complete application stack:
 
 ```bash
-python main.py
+# Start all services (API + Database)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
 ```
 
-### Test MCP Connection
+The application will be available at:
+- **API Documentation**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+- **Health Check**: http://localhost:8000/health
+- **Database**: localhost:5432 (PostgreSQL with pgvector)
 
-To verify your Notion MCP setup:
+### Development Mode
+
+For development with hot reload:
 
 ```bash
-python test_mcp.py
+# Start in development mode
+docker-compose up -d
+
+# The API will automatically reload when you make changes
+# Database persists between restarts
 ```
 
-This will test the connection and show available tools.
+### Environment Variables
 
-### Output Formats
+Required environment variables (add to your `.env` file):
 
 ```bash
-# Simple day: meal format
-python main.py --format simple
+# Required - At least one AI provider
+OPENAI_API_KEY=your_openai_api_key_here
 
-# Markdown format
-python main.py --format markdown
+# Optional - Additional AI providers
+ANTHROPIC_API_KEY=your_anthropic_key
+TAVILY_API_KEY=your_tavily_key
+FIRECRAWL_API_KEY=your_firecrawl_key
+QUOTIENT_API_KEY=your_quotient_key
 
-# Detailed text format (default)
-python main.py --format text
+# Database Configuration (defaults provided)
+DB_USER=ai
+DB_PASSWORD=ai
+DB_NAME=ai
+DB_HOST=pgvector
+DB_PORT=5432
+DB_DRIVER=postgresql+psycopg
 ```
 
 ### Example Output
@@ -127,73 +138,74 @@ Here's a concise read on your meal history and how to use it for weekly planning
 
 ### Components
 
-- **NotionMCPClient**: Interfaces with Notion via the official MCP server to fetch meal data
-- **MealPlanningWorkflow**: LangGraph workflow that orchestrates the planning process
-- **Agents**: Specialized agents for fetching, analyzing, generating, and formatting
-- **Models**: Pydantic models for type-safe data handling
-- **Formatter**: Multiple output format options
+- **FastAPI Backend**: Modern REST API with automatic documentation
+- **PostgreSQL Database**: Robust data storage with pgvector for embeddings
+- **AI Agents**: Specialized agents for meal planning, analysis, and generation
+- **Docker Containerization**: Fully containerized deployment
+- **Historical Tracking**: Archives meal plans and tracks patterns over time
 
-### Workflow Steps
+### System Architecture
 
-1. **Fetch Meals**: Retrieves existing meals from Notion databases and pages using MCP tools
-2. **Analyze Meals**: AI analysis of meal patterns, preferences, and cooking styles
-3. **Generate Plan**: Creates a balanced weekly meal schedule based on analysis
-4. **Format Output**: Presents the plan in your chosen format with detailed insights
-
-### Available MCP Tools
-
-The application uses these Notion MCP tools:
-- `API-post-search`: Search for pages and databases
-- `API-post-database-query`: Query database contents
-- `API-retrieve-a-page`: Get detailed page information
-- `API-get-users`: List workspace users
-- `API-get-self`: Get your user information
+1. **API Layer**: FastAPI application with health checks and monitoring
+2. **Agent Layer**: AI agents handle meal planning logic and analysis
+3. **Database Layer**: PostgreSQL with pgvector for data persistence
+4. **Container Layer**: Docker Compose orchestrates all services
 
 ## Configuration
 
 ### Environment Variables
 
 - `OPENAI_API_KEY`: Your OpenAI API key (required)
-- `NOTION_API_KEY`: Your Notion integration token (required)
+- `ANTHROPIC_API_KEY`: Your Anthropic API key (optional)
+- `TAVILY_API_KEY`: Your Tavily API key (optional)
+- `FIRECRAWL_API_KEY`: Your Firecrawl API key (optional)
+- `QUOTIENT_API_KEY`: Your Quotient API key (optional)
 
 ### Customization
 
 The meal planning can be customized by modifying:
-- `Config.DAYS_OF_WEEK`: Change the weekly template format
-- Workflow prompts in the agent files for different planning styles
-- Output formats in the formatter agent
+- Agent prompts in the `mealworm/agents/` directory
+- API routes in the `mealworm/api/routes/` directory
+- Database models in `mealworm/models.py`
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **"NOTION_API_KEY environment variable is required"**: 
-   - Make sure you've set up your Notion integration and exported the token
-   - Run: `export NOTION_API_KEY="your_token_here"`
+1. **"OPENAI_API_KEY environment variable is required"**: 
+   - Make sure you've set up your OpenAI API key in the `.env` file
+   - Verify your API key is valid and has sufficient credits
 
-2. **"No meals found"**: 
-   - Ensure your Notion workspace has pages with meal/recipe content
-   - Make sure you've shared the pages with your integration
-   - Check that pages have titles that contain meal-related keywords
+2. **"Database connection failed"**: 
+   - Ensure Docker Compose is running: `docker-compose up -d`
+   - Check that the PostgreSQL container is healthy: `docker-compose ps`
+   - Verify database credentials in your `.env` file
 
-3. **"Failed to initialize Notion MCP client"**: 
-   - Verify your Notion API key is correct
-   - Check that you have internet connectivity
-   - Ensure the `@notionhq/notion-mcp-server` package can be installed
+3. **"API not responding"**: 
+   - Check if the API container is running: `docker-compose logs api`
+   - Ensure port 8000 is not in use by another application
+   - Restart the services: `docker-compose restart`
 
-4. **"OpenAI API errors"**: 
-   - Check your API key and usage limits
-   - Verify your OpenAI account has access to GPT-4
+4. **"Container build failed"**: 
+   - Check Docker is running and has sufficient resources
+   - Try rebuilding: `docker-compose build --no-cache`
+   - Verify all dependencies are available
 
 ### Debug Mode
 
-For more detailed logging, run the test script:
+For more detailed logging:
 
 ```bash
-python test_mcp.py
-```
+# View all logs
+docker-compose logs -f
 
-This will show available tools and test the connection.
+# View specific service logs
+docker-compose logs -f api
+docker-compose logs -f pgvector
+
+# Check service status
+docker-compose ps
+```
 
 ## Development
 
@@ -201,32 +213,84 @@ This will show available tools and test the connection.
 
 ```
 mealworm/
-├── mealworm/                 # Main application package
-│   ├── agents/              # Specialized workflow agents
-│   │   ├── analyzer.py      # Meal analysis agent
-│   │   ├── fetcher.py       # Notion data fetching agent
-│   │   ├── formatter.py     # Output formatting agent
-│   │   └── generator.py     # Meal plan generation agent
+├── mealworm/                    # Main application package
+│   ├── agents/                 # AI agents for meal planning
+│   │   ├── judge.py           # Meal plan evaluation agent
+│   │   ├── meal_planner.py    # Main meal planning agent (Agno)
+│   │   └── selector.py        # Meal selection agent
+│   ├── api/                   # FastAPI web interface
+│   │   ├── main.py           # FastAPI app creation
+│   │   ├── monitoring.py     # Health checks and monitoring
+│   │   ├── routes/           # API route handlers
+│   │   └── settings.py       # API configuration
+│   ├── db/                   # Database configuration
+│   │   ├── session.py        # Database session management
+│   │   └── url.py           # Database URL construction
+│   ├── workflows/            # LangGraph workflow components
+│   │   ├── analyzer.py      # Meal analysis workflow
+│   │   ├── fetcher.py       # Notion data fetching workflow
+│   │   ├── generator.py     # Meal plan generation workflow
+│   │   ├── searcher.py      # Meal search workflow
+│   │   └── workflow.py      # Main workflow orchestration
+│   ├── scripts/             # Development and deployment scripts
+│   │   ├── dev_setup.sh     # Development environment setup
+│   │   ├── build_image.sh   # Docker image building
+│   │   └── entrypoint.sh    # Container entrypoint
 │   ├── config.py            # Configuration and environment settings
 │   ├── models.py            # Pydantic data models
-│   ├── notion_client.py     # Notion MCP server integration
-│   └── workflow.py          # LangGraph workflow orchestration
-├── main.py                  # Command-line interface
-├── test_mcp.py              # MCP connection testing
-├── requirements.txt         # Python dependencies
-└── README.md               # Documentation
+│   └── notion_client.py     # Legacy Notion integration (deprecated)
+├── historical-meal-plans/   # Archive of generated meal plans
+├── evals/                   # Evaluation and testing scripts
+├── compose.yaml            # Docker Compose configuration
+├── Dockerfile              # Container image definition
+├── requirements.txt        # Python dependencies
+└── README.md              # Documentation
+```
+
+### Development Setup
+
+1. **Docker Development**:
+```bash
+# Start development environment
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+```
+
+2. **Development Scripts**:
+```bash
+# Format code
+./mealworm/scripts/format.sh
+
+# Validate setup
+./mealworm/scripts/validate.sh
+
+# Build Docker image
+./mealworm/scripts/build_image.sh
 ```
 
 ### Testing
 
-Test the MCP connection:
 ```bash
-python test_mcp.py
+# Test individual agents
+python evals/test_agents.py
+
+# Test workflow components
+python evals/test_workflow.py
+
+# Test API endpoints
+curl http://localhost:8000/health
 ```
 
-Run the full application:
+### API Development
+
 ```bash
-python main.py
+# Start with Docker Compose (recommended)
+docker-compose up -d
+
+# API automatically reloads on code changes
+# Access at http://localhost:8000/docs
 ```
 
 ## Contributing
@@ -245,11 +309,12 @@ MIT License - see LICENSE file for details
 
 For issues and questions:
 - Check the troubleshooting section above
-- Review [Notion MCP documentation](https://developers.notion.com/docs/get-started-with-mcp)
+- Review the API documentation at http://localhost:8000/docs
 - Open an issue in the repository
 
 ## Acknowledgments
 
-- Built with [LangGraph](https://github.com/langchain-ai/langgraph) for workflow orchestration
-- Uses [Notion MCP Server](https://github.com/notionhq/notion-mcp-server) for workspace integration
-- Powered by OpenAI's GPT models for intelligent meal planning
+- Built with [FastAPI](https://fastapi.tiangolo.com/) for the REST API
+- Uses [PostgreSQL](https://www.postgresql.org/) with [pgvector](https://github.com/pgvector/pgvector) for data storage
+- Powered by AI agents for intelligent meal planning
+- Containerized with [Docker](https://www.docker.com/) for easy deployment
