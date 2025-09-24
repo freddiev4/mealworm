@@ -182,7 +182,7 @@ Dinner:
 """
 
 async def get_meal_planning_knowledge():
-    db_url = get_db_url()
+    db_url = "postgresql+psycopg://freddie:ai@localhost:5432/freddie"
 
     knowledge = Knowledge(
         vector_db=PgVector(
@@ -209,6 +209,7 @@ async def get_meal_planning_knowledge():
 async def create_meal_planning_agent():
     """Create and return a configured meal planning agent"""
     agent = Agent(
+        name="mealworm-meal-planner",
         model=Claude(id="claude-sonnet-4-0"),
         instructions=CUSTOM_INSTRUCTIONS,
         tools=[
@@ -221,3 +222,8 @@ async def create_meal_planning_agent():
         markdown=True,
     )
     return agent
+
+if __name__ == "__main__":
+    import asyncio
+    agent = asyncio.run(create_meal_planning_agent())
+    asyncio.run(agent.arun("Generate a meal plan for the week."))
