@@ -4,10 +4,10 @@ from os import getenv
 def get_db_url() -> str:
     db_driver = getenv("DB_DRIVER", "postgresql+psycopg")
     db_user = getenv("DB_USER", "ai")
-    db_pass = getenv("DB_PASS", "ai")
+    db_pass = getenv("DB_PASSWORD", "ai")
     db_host = getenv("DB_HOST", "pgvector")
     db_port = getenv("DB_PORT", "5432")
-    db_database = getenv("DB_DATABASE", "ai")
+    db_database = getenv("DB_NAME", "ai")
     return "{}://{}{}@{}:{}/{}".format(
         db_driver,
         db_user,

@@ -182,7 +182,7 @@ Dinner:
 """
 
 async def get_meal_planning_knowledge():
-    db_url = "postgresql+psycopg://freddie:ai@localhost:5432/freddie"
+    db_url = get_db_url()
 
     knowledge = Knowledge(
         vector_db=PgVector(

@@ -12,5 +12,7 @@ def get_health():
     """Check the health of the Api"""
 
     return {
+
         "status": "success",
     }
+
