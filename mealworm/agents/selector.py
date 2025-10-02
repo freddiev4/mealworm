@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Optional
 
-from mealworm.agents.meal_planner import create_meal_planning_agent
+from mealworm.agents.meal_planner_openai import create_meal_planning_agent
 
 
 class AgentType(Enum):

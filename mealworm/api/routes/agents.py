@@ -2,8 +2,7 @@ from enum import Enum
 from logging import getLogger
 from typing import AsyncGenerator, List, Optional
 
-from agno.agent import Agent
-from agno.knowledge.knowledge import Knowledge
+from agents import Agent, Runner
 
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -11,7 +10,7 @@ from opentelemetry.trace import use_span
 from pydantic import BaseModel
 
 from mealworm.api.monitoring import quotient
-from mealworm.agents.meal_planner import get_meal_planning_knowledge
+from mealworm.agents.meal_planner_openai import load_meal_plans_to_vector_db
 from mealworm.agents.selector import AgentType, get_agent, get_available_agents
 
 logger = getLogger(__name__)
@@ -25,6 +24,7 @@ agents_router = APIRouter(prefix="/agents", tags=["Agents"])
 
 class Model(str, Enum):
     claude_sonnet_4_0 = "claude-sonnet-4-0"
+    gpt_5_mini = "gpt-5-mini"
 
 
 @agents_router.get("", response_model=List[str])
@@ -54,13 +54,12 @@ async def chat_response_streamer(agent: Agent, message: str) -> AsyncGenerator:
     stream_ctx = use_span(root_span, end_on_exit=False)
 
     with stream_ctx:
-        run_response = agent.arun(message, stream=True)
-        async for chunk in run_response:
-            # chunk.content only contains the text response from the Agent.
-            # For advanced use cases, we should yield the entire chunk
-            # that contains the tool calls and intermediate steps.
-            if chunk.content is not None:
-                yield chunk.content
+        # Use OpenAI Agents SDK streaming
+        result = Runner.run_streamed(agent, message)
+        async for event in result.stream_events():
+            # Stream raw response events (token by token)
+            if hasattr(event, 'data') and hasattr(event.data, 'text'):
+                yield event.data.text
 
     root_span.end()
     quotient.force_flush()
@@ -71,7 +70,7 @@ class RunRequest(BaseModel):
 
     message: str
     stream: bool = True
-    model: Model = Model.claude_sonnet_4_0
+    model: Model = Model.gpt_5_mini
     user_id: Optional[str] = None
     session_id: Optional[str] = None
 
@@ -108,11 +107,10 @@ async def create_agent_run(agent_id: AgentType, body: RunRequest):
         )
         return response
     else:
-        response = await agent.arun(body.message, stream=False)
-        # In this case, the response.content only contains the text response from the Agent.
-        # For advanced use cases, we should yield the entire response
-        # that contains the tool calls and intermediate steps.
-        return response.content
+        # Use OpenAI Agents SDK non-streaming run
+        result = await Runner.run(agent, body.message)
+        # Return the final output from the agent
+        return result.final_output
 
 @agents_router.post("/{agent_id}/knowledge/load", status_code=status.HTTP_200_OK)
 async def load_agent_knowledge(agent_id: AgentType):
@@ -125,23 +123,19 @@ async def load_agent_knowledge(agent_id: AgentType):
     Returns:
         A success message if the knowledge base is loaded.
     """
-    agent_knowledge = None
-
     if agent_id == AgentType.MEAL_PLANNING_AGENT:
-        agent_knowledge = get_meal_planning_knowledge()
+        try:
+            await load_meal_plans_to_vector_db()
+        except Exception as e:
+            logger.error(f"Error loading knowledge base for {agent_id}: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to load knowledge base for {agent_id}.",
+            )
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Agent {agent_id} does not have a knowledge base.",
-        )
-
-    try:
-        await agent_knowledge.aload(upsert=True)
-    except Exception as e:
-        logger.error(f"Error loading knowledge base for {agent_id}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to load knowledge base for {agent_id}.",
         )
 
     return {"message": f"Knowledge base for {agent_id} loaded successfully."}
