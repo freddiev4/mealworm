@@ -47,13 +47,20 @@ Start the complete application stack:
 
 ```bash
 # Start all services (API + Database)
-docker-compose up -d
+docker compose up --build
+```
 
+```console
+# send a POST request to the /knowledge/load endpoint which initializes the vector db with all the historical meal plans
+```
+
+
+```
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop services
-docker-compose down
+docker compose down
 ```
 
 The application will be available at:
@@ -61,18 +68,6 @@ The application will be available at:
 - **ReDoc**: http://localhost:8000/redoc
 - **Health Check**: http://localhost:8000/health
 - **Database**: localhost:5432 (PostgreSQL with pgvector)
-
-### Development Mode
-
-For development with hot reload:
-
-```bash
-# Start in development mode
-docker-compose up -d
-
-# The API will automatically reload when you make changes
-# Database persists between restarts
-```
 
 ### Environment Variables
 
