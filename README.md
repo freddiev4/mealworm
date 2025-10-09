@@ -35,8 +35,12 @@ cp example.env .env
 
 3. Start the application:
 ```bash
-docker-compose up -d
+docker compose up --build
 ```
+
+4. Initialize the knowledge base. Send a POST request to the /knowledge/load endpoint which initializes the vector db with all the historical meal plans
+
+5. Go to http://localhost:8000/docs and start a new agent run
 
 
 ## Usage
@@ -48,14 +52,7 @@ Start the complete application stack:
 ```bash
 # Start all services (API + Database)
 docker compose up --build
-```
 
-```console
-# send a POST request to the /knowledge/load endpoint which initializes the vector db with all the historical meal plans
-```
-
-
-```
 # View logs
 docker compose logs -f
 
