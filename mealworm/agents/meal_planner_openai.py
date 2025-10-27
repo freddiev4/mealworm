@@ -32,7 +32,7 @@ START_OF_WEEK = get_start_of_coming_week().strftime('%Y-%m-%d')
 # NOTE: modify this eventually to add
 CUSTOM_INSTRUCTIONS = f"""
 ## Meal Plan Generation
-Look through 30 meals I have made in the meal planning database, and make a new markdown file with meals planned for this week. Use the template I'll provide at the end of these instructions.
+Lookup recipes for meals and make a new markdown file with meals planned for this week. Use the template I'll provide at the end of these instructions.
 
 The first day of the week is a Sunday, {START_OF_WEEK}.
 
@@ -97,38 +97,38 @@ When you're finished, please write the meal plan to the file {START_OF_WEEK}.md
 
 # Sunday
 
-Lunch:
+## Lunch: [fillmein](link to recipe)
 
-Dinner:
+## Dinner: [fillmein](link to recipe)
 
 # Monday
 
-## Lunch:
+## Lunch: [fillmein](link to recipe)
 
 ### Ingredients:
 
-## Dinner:
+## Dinner: [fillmein](link to recipe)
 
 ### Ingredients:
 
 
 # Tuesday
 
-## Lunch:
+## Lunch: [fillmein](link to recipe)
 
 ### Ingredients:
 
-## Dinner:
+## Dinner: [fillmein](link to recipe)
 
 ### Ingredients:
 
 # Wednesday
 
-## Lunch:
+## Lunch: [fillmein](link to recipe)
 
 ### Ingredients:
 
-## Dinner:
+## Dinner: [fillmein](link to recipe)
 
 ### Ingredients:
 
@@ -144,31 +144,31 @@ Dinner:
 
 # Friday
 
-## Lunch:
+## Lunch: [fillmein](link to recipe)
 
 ### Ingredients:
 
-## Dinner:
+## Dinner: [fillmein](link to recipe)
 
 ### Ingredients:
 
 # Saturday
 
-## Lunch:
+## Lunch: [fillmein](link to recipe)    
 
 ### Ingredients:
 
-## Dinner:
+## Dinner: [fillmein](link to recipe)
 
 ### Ingredients:
 
 # Sunday
 
-## Lunch:
+## Lunch: [fillmein](link to recipe)
 
 ### Ingredients:
 
-## Dinner:
+## Dinner: [fillmein](link to recipe)
 
 ### Ingredients:
 </TEMPLATE>
@@ -183,7 +183,7 @@ async def search_web(query: str) -> str:
     import os
 
     client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
-    response = client.search(query, max_results=5)
+    response = client.search(query, max_results=1)
 
     # Format results
     results = []
@@ -326,7 +326,7 @@ async def create_meal_planning_agent():
             write_file,
             read_file,
             list_files,
-            search_historical_meals,
+            # search_historical_meals,
         ],
     )
     return agent
