@@ -38,9 +38,11 @@ cp example.env .env
 docker compose up --build
 ```
 
-4. Initialize the knowledge base. Send a POST request to the /knowledge/load endpoint which initializes the vector db with all the historical meal plans
+4. Go to http://localhost:8000/docs
 
-5. Go to http://localhost:8000/docs and start a new agent run
+5. Initialize the knowledge base. Send a POST request to the /knowledge/load endpoint which initializes the vector db with all the historical meal plans
+
+6. Create a new Agent Run. Send a POST request to the /agents/runs endpoint
 
 
 ## Usage
