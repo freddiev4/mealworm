@@ -2,10 +2,13 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from typing import Optional, Union
+
 from agno.agent import Agent
 from agno.knowledge.knowledge import Knowledge
 from agno.knowledge.reader.markdown_reader import MarkdownReader
 from agno.models.anthropic import Claude
+from agno.models.openai import OpenAIChat
 from agno.tools.firecrawl import FirecrawlTools
 from agno.tools.local_file_system import LocalFileSystemTools
 from agno.tools.tavily import TavilyTools
@@ -181,7 +184,8 @@ Dinner:
 </TEMPLATE>
 """
 
-async def get_meal_planning_knowledge():
+async def load_meal_plans_to_vector_db():
+    """Load historical meal plans from markdown files into PGVector database."""
     db_url = get_db_url()
 
     knowledge = Knowledge(
@@ -203,17 +207,60 @@ async def get_meal_planning_knowledge():
                 skip_if_exists=True,
             )
             print(f"Added {len(paths)} meal plans to knowledge base")
+    else:
+        print(f"Directory {historical_plans_dir} does not exist")
+
     return knowledge
 
 
-async def create_meal_planning_agent():
-    """Create and return a configured meal planning agent"""
+async def get_meal_planning_knowledge():
+    """Get or create meal planning knowledge base."""
+    return await load_meal_plans_to_vector_db()
+
+
+def get_model_instance(model_id: str) -> Union[Claude, OpenAIChat]:
+    """
+    Returns the appropriate model instance based on the model_id.
+
+    Args:
+        model_id: Model identifier (e.g., "claude-sonnet-4-5", "gpt-5-mini")
+
+    Returns:
+        Either a Claude or OpenAIChat model instance
+    """
+    if model_id.startswith("claude-"):
+        return Claude(id=model_id)
+    else:
+        # Assume OpenAI for all other models
+        return OpenAIChat(id=model_id)
+
+
+async def create_meal_planning_agent(
+    model_id: str = "claude-sonnet-4-0",
+    user_id: Optional[str] = None,
+    session_id: Optional[str] = None,
+    debug_mode: bool = True,
+):
+    """
+    Create and return a configured meal planning agent.
+
+    Args:
+        model_id: Model identifier (supports Anthropic Claude and OpenAI models)
+        user_id: Optional user identifier
+        session_id: Optional session identifier
+        debug_mode: Enable debug mode
+
+    Returns:
+        Configured Agent instance
+    """
+    model = get_model_instance(model_id)
+
     agent = Agent(
         name="mealworm-meal-planner",
-        model=Claude(id="claude-sonnet-4-0"),
+        model=model,
         instructions=CUSTOM_INSTRUCTIONS,
         tools=[
-            TavilyTools(), 
+            TavilyTools(),
             FirecrawlTools(enable_scrape=True, enable_crawl=True),
             LocalFileSystemTools(target_directory=".")
         ],
