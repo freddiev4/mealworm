@@ -146,4 +146,4 @@ async def create_meal_planning_agent(
 if __name__ == "__main__":
     import asyncio
     agent = asyncio.run(create_meal_planning_agent())
-    asyncio.run(agent.arun("Generate a meal plan for the week."))
+    agent.run("Generate a meal plan for the week.")
