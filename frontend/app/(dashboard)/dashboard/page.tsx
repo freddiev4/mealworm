@@ -8,7 +8,9 @@ import { AgentType, Model } from "@/types/agent";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { LogOut, Settings, Sparkles } from "lucide-react";
+import { LogOut, Settings, Sparkles, Copy, Check } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -17,6 +19,7 @@ export default function DashboardPage() {
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const handleGenerateMealPlan = async () => {
     if (!message.trim()) {
@@ -53,6 +56,16 @@ export default function DashboardPage() {
       const button = document.getElementById("generate-button");
       button?.click();
     }, 100);
+  };
+
+  const handleCopyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(response);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
   };
 
   return (
@@ -139,10 +152,34 @@ export default function DashboardPage() {
           {/* Response Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Your Meal Plan</CardTitle>
-              <CardDescription>
-                AI-generated meal plan with shopping list
-              </CardDescription>
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle>Your Meal Plan</CardTitle>
+                  <CardDescription>
+                    AI-generated meal plan with shopping list
+                  </CardDescription>
+                </div>
+                {response && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyToClipboard}
+                    className="ml-4"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               {loading && !response && (
@@ -151,10 +188,21 @@ export default function DashboardPage() {
                 </div>
               )}
               {response && (
-                <div className="prose prose-slate dark:prose-invert max-w-none">
-                  <pre className="whitespace-pre-wrap text-sm bg-slate-50 dark:bg-slate-900 p-4 rounded-md overflow-auto max-h-[600px]">
+                <div className="prose prose-slate dark:prose-invert max-w-none overflow-auto max-h-[600px] p-4">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({node, ...props}) => <h1 className="text-3xl font-bold mb-4 mt-6" {...props} />,
+                      h2: ({node, ...props}) => <h2 className="text-2xl font-semibold mb-3 mt-5" {...props} />,
+                      h3: ({node, ...props}) => <h3 className="text-xl font-semibold mb-2 mt-4" {...props} />,
+                      ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4 space-y-1" {...props} />,
+                      ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-4 space-y-1" {...props} />,
+                      p: ({node, ...props}) => <p className="mb-3" {...props} />,
+                      a: ({node, ...props}) => <a className="text-blue-600 hover:underline" {...props} />,
+                    }}
+                  >
                     {response}
-                  </pre>
+                  </ReactMarkdown>
                 </div>
               )}
               {!loading && !response && (
