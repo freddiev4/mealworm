@@ -16,7 +16,7 @@ def get_available_agents() -> List[str]:
 async def get_agent(
     model_id: str = "claude-sonnet-4-0",
     agent_id: Optional[AgentType] = None,
-    user_id: Optional[str] = None,
+    user_id: Optional[int] = None,
     session_id: Optional[str] = None,
     debug_mode: bool = True,
 ):
