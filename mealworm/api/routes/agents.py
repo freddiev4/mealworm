@@ -66,10 +66,10 @@ async def chat_response_streamer(agent: Agent, message: str) -> AsyncGenerator:
 
     try:
         with stream_ctx:
-            # Use agno streaming
+            # Use agno streaming (returns a synchronous generator)
             response_stream = agent.run(message, stream=True)
 
-            async for chunk in response_stream:
+            for chunk in response_stream:
                 # Filter to only stream actual response content, not tool usage narration
                 if hasattr(chunk, 'content') and chunk.content:
                     content = chunk.content
