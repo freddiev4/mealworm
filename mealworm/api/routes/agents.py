@@ -67,7 +67,7 @@ async def chat_response_streamer(agent: Agent, message: str) -> AsyncGenerator:
     try:
         with stream_ctx:
             # Use agno streaming
-            response_stream = agent.arun(message, stream=True)
+            response_stream = agent.run(message, stream=True)
 
             async for chunk in response_stream:
                 # Filter to only stream actual response content, not tool usage narration
@@ -134,7 +134,7 @@ async def create_agent_run(
         return response
     else:
         # Use agno non-streaming run
-        result = await agent.arun(body.message)
+        result = agent.run(body.message, stream=False)
         # Return the content from the agno RunResponse
         return {"content": result.content if hasattr(result, 'content') else str(result)}
 
