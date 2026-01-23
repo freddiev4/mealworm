@@ -23,7 +23,9 @@ Mealworm is an intelligent meal planning application that creates personalized w
 
 1. Clone and navigate to the project:
 ```bash
-git clone https://github.com/freddiev4/mealworm.git
+git clone git@github.com:freddiev4/mealworm.git
+```
+```
 cd mealworm
 ```
 
