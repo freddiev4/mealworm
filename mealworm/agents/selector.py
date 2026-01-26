@@ -31,4 +31,3 @@ async def get_agent(
         raise ValueError(f"Agent: {agent_id} not found")
 
     return agent
-    

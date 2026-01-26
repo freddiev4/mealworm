@@ -1,4 +1,5 @@
 """Authentication dependencies for FastAPI."""
+
 from fastapi import Depends, HTTPException, status, Cookie, Header
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -11,7 +12,7 @@ from mealworm.api.auth.jwt import decode_access_token
 async def get_current_user(
     authorization: Optional[str] = Header(None, alias="Authorization"),
     access_token: Optional[str] = Cookie(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> User:
     """
     Dependency to get the current authenticated user from JWT token.
@@ -52,7 +53,11 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    user = db.query(User).filter(User.id == token_data.user_id, User.is_active == True).first()
+    user = (
+        db.query(User)
+        .filter(User.id == token_data.user_id, User.is_active == True)
+        .first()
+    )
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

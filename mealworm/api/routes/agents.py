@@ -60,7 +60,7 @@ async def chat_response_streamer(agent: Agent, message: str) -> AsyncGenerator:
     Yields:
         Text chunks from the agent response
     """
-    root_span = quotient.tracer.start_span(f'{agent.name}-run')
+    root_span = quotient.tracer.start_span(f"{agent.name}-run")
 
     stream_ctx = use_span(root_span, end_on_exit=False)
 
@@ -71,11 +71,11 @@ async def chat_response_streamer(agent: Agent, message: str) -> AsyncGenerator:
 
             for chunk in response_stream:
                 # Filter to only stream actual response content, not tool usage narration
-                if hasattr(chunk, 'content') and chunk.content:
+                if hasattr(chunk, "content") and chunk.content:
                     content = chunk.content
 
                     # Skip tool execution timing messages
-                    if 'completed in' not in content:
+                    if "completed in" not in content:
                         yield content
     except Exception as e:
         logger.error(f"Error in chat_response_streamer: {e}", exc_info=True)
@@ -99,7 +99,7 @@ class RunRequest(BaseModel):
 async def create_agent_run(
     agent_id: AgentType,
     body: RunRequest,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     Sends a message to a specific agent and returns the response.
@@ -113,7 +113,9 @@ async def create_agent_run(
     Returns:
         Either a streaming response or the complete agent response
     """
-    logger.info(f"Agent run for {agent_id} by user {current_user.id} with model {body.model.value}")
+    logger.info(
+        f"Agent run for {agent_id} by user {current_user.id} with model {body.model.value}"
+    )
 
     try:
         agent: Agent = await get_agent(
@@ -125,7 +127,6 @@ async def create_agent_run(
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
-
     if body.stream:
         response = StreamingResponse(
             chat_response_streamer(agent, body.message),
@@ -136,7 +137,10 @@ async def create_agent_run(
         # Use agno non-streaming run
         result = agent.run(body.message, stream=False)
         # Return the content from the agno RunResponse
-        return {"content": result.content if hasattr(result, 'content') else str(result)}
+        return {
+            "content": result.content if hasattr(result, "content") else str(result)
+        }
+
 
 @agents_router.post("/{agent_id}/knowledge/load", status_code=status.HTTP_200_OK)
 async def load_agent_knowledge(agent_id: AgentType):

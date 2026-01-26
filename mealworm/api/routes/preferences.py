@@ -1,4 +1,5 @@
 """User preferences API endpoints."""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -15,6 +16,7 @@ preferences_router = APIRouter(prefix="/preferences", tags=["Preferences"])
 
 class PreferencesResponse(BaseModel):
     """User preferences response model."""
+
     id: int
     user_id: int
 
@@ -52,6 +54,7 @@ class PreferencesResponse(BaseModel):
 
 class UpdatePreferencesRequest(BaseModel):
     """Request model for updating user preferences."""
+
     # Meal Plan Requirements
     chicken_dishes_per_week: Optional[int] = None
     fish_dishes_per_week: Optional[int] = None
@@ -79,8 +82,7 @@ class UpdatePreferencesRequest(BaseModel):
 
 @preferences_router.get("", response_model=PreferencesResponse)
 async def get_preferences(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     """
     Get the current user's meal planning preferences.
@@ -95,14 +97,15 @@ async def get_preferences(
     Raises:
         HTTPException: If preferences not found
     """
-    preferences = db.query(UserPreferences).filter(
-        UserPreferences.user_id == current_user.id
-    ).first()
+    preferences = (
+        db.query(UserPreferences)
+        .filter(UserPreferences.user_id == current_user.id)
+        .first()
+    )
 
     if not preferences:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Preferences not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Preferences not found"
         )
 
     return preferences
@@ -112,7 +115,7 @@ async def get_preferences(
 async def update_preferences(
     body: UpdatePreferencesRequest,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Update the current user's meal planning preferences.
@@ -128,14 +131,15 @@ async def update_preferences(
     Raises:
         HTTPException: If preferences not found
     """
-    preferences = db.query(UserPreferences).filter(
-        UserPreferences.user_id == current_user.id
-    ).first()
+    preferences = (
+        db.query(UserPreferences)
+        .filter(UserPreferences.user_id == current_user.id)
+        .first()
+    )
 
     if not preferences:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Preferences not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Preferences not found"
         )
 
     # Update only provided fields

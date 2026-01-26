@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -23,6 +22,7 @@ from mealworm.agents.instructions_builder import build_custom_instructions
 # Note: Custom instructions are now dynamically generated from user preferences
 # See mealworm/agents/instructions_builder.py for the template builder
 
+
 async def load_meal_plans_to_vector_db():
     """Load historical meal plans from markdown files into PGVector database."""
     db_url = get_db_url()
@@ -37,7 +37,9 @@ async def load_meal_plans_to_vector_db():
     # Add Markdown content from historical meal plans to knowledge base
     historical_plans_dir = Path("historical-meal-plans")
     if historical_plans_dir.exists():
-        print(f"Adding historical meal plans to knowledge base from {historical_plans_dir}")
+        print(
+            f"Adding historical meal plans to knowledge base from {historical_plans_dir}"
+        )
         paths = list(historical_plans_dir.glob("*.md"))
         if paths:
             await knowledge.add_contents_async(
@@ -72,8 +74,8 @@ def get_model_instance(model_id: str) -> Union[Claude, OpenAIChat]:
             id=model_id,
             client_params={
                 "max_retries": 5,  # Retry up to 5 times
-                "timeout": 60.0,   # 60 second timeout
-            }
+                "timeout": 60.0,  # 60 second timeout
+            },
         )
     else:
         # Assume OpenAI for all other models
@@ -82,8 +84,8 @@ def get_model_instance(model_id: str) -> Union[Claude, OpenAIChat]:
             id=model_id,
             client_params={
                 "max_retries": 5,  # Retry up to 5 times
-                "timeout": 60.0,   # 60 second timeout
-            }
+                "timeout": 60.0,  # 60 second timeout
+            },
         )
 
 
@@ -114,9 +116,9 @@ async def create_meal_planning_agent(
     # Fetch user preferences from database
     db: Session = SessionLocal()
     try:
-        preferences = db.query(UserPreferences).filter(
-            UserPreferences.user_id == user_id
-        ).first()
+        preferences = (
+            db.query(UserPreferences).filter(UserPreferences.user_id == user_id).first()
+        )
 
         if not preferences:
             raise ValueError(f"No preferences found for user_id: {user_id}")
@@ -135,7 +137,7 @@ async def create_meal_planning_agent(
         tools=[
             TavilyTools(),
             FirecrawlTools(enable_scrape=True, enable_crawl=True),
-            LocalFileSystemTools(target_directory=".")
+            LocalFileSystemTools(target_directory="."),
         ],
         knowledge=await get_meal_planning_knowledge(),
         search_knowledge=True,
@@ -143,7 +145,9 @@ async def create_meal_planning_agent(
     )
     return agent
 
+
 if __name__ == "__main__":
     import asyncio
+
     agent = asyncio.run(create_meal_planning_agent())
     agent.run("Generate a meal plan for the week.")

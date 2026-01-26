@@ -1,4 +1,5 @@
 """Dynamic instruction template builder for meal planning agent."""
+
 from datetime import datetime, timedelta
 from typing import Optional
 from sqlalchemy.orm import Session
@@ -34,7 +35,7 @@ def build_custom_instructions(preferences: UserPreferences) -> str:
     Returns:
         Formatted instruction string for the agent
     """
-    start_of_week = get_start_of_coming_week().strftime('%Y-%m-%d')
+    start_of_week = get_start_of_coming_week().strftime("%Y-%m-%d")
 
     # Build meal requirements section
     requirements = []
@@ -51,15 +52,23 @@ def build_custom_instructions(preferences: UserPreferences) -> str:
         requirements.append("vegetables with every dish")
 
     if preferences.eating_out_days:
-        eating_out_days_str = " or ".join([day.lower() for day in preferences.eating_out_days])
-        requirements.append(f"exactly one meal that's eating out on a {eating_out_days_str} for dinner")
+        eating_out_days_str = " or ".join(
+            [day.lower() for day in preferences.eating_out_days]
+        )
+        requirements.append(
+            f"exactly one meal that's eating out on a {eating_out_days_str} for dinner"
+        )
 
     if preferences.leftovers_for_lunch:
-        requirements.append("every dinner should be able to be eaten as leftovers the next day for lunch")
+        requirements.append(
+            "every dinner should be able to be eaten as leftovers the next day for lunch"
+        )
 
     requirements.append("every meal should have ingredients listed in the meal plan")
 
-    requirements_text = "\n".join([f"{i+1}. {req}" for i, req in enumerate(requirements)])
+    requirements_text = "\n".join(
+        [f"{i + 1}. {req}" for i, req in enumerate(requirements)]
+    )
 
     # Build meal preferences section
     preferences_list = []
@@ -86,7 +95,11 @@ def build_custom_instructions(preferences: UserPreferences) -> str:
         cuisines_str = ", ".join([c.lower() for c in preferences.preferred_cuisines])
         preferences_list.append(f"- I love {cuisines_str} food.")
 
-    preferences_text = "\n".join(preferences_list) if preferences_list else "- No specific preferences."
+    preferences_text = (
+        "\n".join(preferences_list)
+        if preferences_list
+        else "- No specific preferences."
+    )
 
     # Build dietary restrictions section
     dietary_section = ""
@@ -95,7 +108,9 @@ def build_custom_instructions(preferences: UserPreferences) -> str:
         if preferences.dietary_restrictions:
             restrictions.extend(preferences.dietary_restrictions)
         if preferences.allergens:
-            restrictions.extend([f"allergic to {allergen}" for allergen in preferences.allergens])
+            restrictions.extend(
+                [f"allergic to {allergen}" for allergen in preferences.allergens]
+            )
 
         dietary_section = f"""
 ## Dietary Restrictions

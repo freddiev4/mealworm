@@ -1,4 +1,5 @@
 """Initialize database with tables for authentication and user preferences."""
+
 from sqlalchemy import create_engine
 from mealworm.db.models import Base
 from mealworm.db.url import get_db_url

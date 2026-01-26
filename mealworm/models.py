@@ -4,9 +4,9 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
 
-
 class Meal(BaseModel):
     """Represents a meal from Notion"""
+
     id: str
     title: str
     description: Optional[str] = None
@@ -24,6 +24,7 @@ class Meal(BaseModel):
 
 class DayPlan(BaseModel):
     """Represents meals planned for a single day"""
+
     day: str
     breakfast: Optional[Meal] = None
     lunch: Optional[Meal] = None
@@ -33,6 +34,7 @@ class DayPlan(BaseModel):
 
 class WeeklyMealPlan(BaseModel):
     """Represents a complete weekly meal plan"""
+
     week_starting: datetime
     days: List[DayPlan]
     notes: Optional[str] = None
@@ -41,6 +43,7 @@ class WeeklyMealPlan(BaseModel):
 
 class MealPlanningState(BaseModel):
     """State object for the LangGraph workflow"""
+
     existing_meals: List[Meal] = Field(default_factory=list)
     meal_preferences: Dict[str, Any] = Field(default_factory=dict)
     weekly_plan: Optional[WeeklyMealPlan] = None
