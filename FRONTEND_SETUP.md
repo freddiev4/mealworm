@@ -168,6 +168,7 @@ uvicorn main_agno:app --reload
 ### 2. Start the Frontend
 ```bash
 cd frontend
+npm install
 npm run dev
 ```
 

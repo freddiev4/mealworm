@@ -41,13 +41,9 @@ async function fetchApi<T>(
 
   const headers: HeadersInit = {
     "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
     ...options.headers,
   };
-
-  // Add Authorization header if token exists
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
 
   const response = await fetch(url, {
     ...options,
@@ -115,10 +111,8 @@ export const agentApi = {
       const token = getToken();
       const headers: HeadersInit = {
         "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
       };
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
 
       const response = await fetch(`${API_URL}/v1/agents/${agentId}/runs`, {
         method: "POST",
@@ -154,10 +148,8 @@ export const agentApi = {
     const token = getToken();
     const headers: HeadersInit = {
       "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
     };
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
 
     const response = await fetch(`${API_URL}/v1/agents/${agentId}/runs`, {
       method: "POST",

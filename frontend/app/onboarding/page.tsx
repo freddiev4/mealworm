@@ -37,7 +37,7 @@ export default function OnboardingPage() {
 
   // Step 4: Additional
   const [saucePreference, setSaucePreference] = useState(
-    "Every meal should have some kind of sauce on top. I don't like dry meals."
+    "Every meal should have some kind of sauce on top. I don&apos;t like dry meals."
   );
   const [easyMealPreference, setEasyMealPreference] = useState(
     "I prefer one super easy meal where I can buy the ingredients mostly pre-made & frozen."
@@ -109,7 +109,7 @@ export default function OnboardingPage() {
             <CardHeader>
               <CardTitle>Basic Meal Planning</CardTitle>
               <CardDescription>
-                Let's start with your weekly meal planning basics
+                Let&apos;s start with your weekly meal planning basics
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -152,7 +152,7 @@ export default function OnboardingPage() {
                     checked={leftoversForLunch}
                     onChange={(e: any) => setLeftoversForLunch(e.target.checked)}
                   />
-                  <Label htmlFor="leftovers">I'll use leftovers for lunch</Label>
+                  <Label htmlFor="leftovers">I&apos;ll use leftovers for lunch</Label>
                 </div>
               </div>
             </CardContent>
@@ -165,7 +165,7 @@ export default function OnboardingPage() {
             <CardHeader>
               <CardTitle>Your Taste Preferences</CardTitle>
               <CardDescription>
-                Tell us what you like and don't like
+                Tell us what you like and don&apos;t like
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -177,7 +177,7 @@ export default function OnboardingPage() {
                   value={likes}
                   onChange={(e) => setLikes(e.target.value)}
                 />
-                <p className="text-xs text-slate-500">Leave blank if you're open to anything</p>
+                <p className="text-xs text-slate-500">Leave blank if you&apos;re open to anything</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dislikes">Foods I dislike (comma-separated)</Label>

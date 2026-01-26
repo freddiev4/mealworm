@@ -225,7 +225,7 @@ export default function DashboardPage() {
               <li>• Be specific about dietary needs or cuisine preferences</li>
               <li>• Mention if you want easy meals or more elaborate dishes</li>
               <li>• Update your preferences to get more personalized results</li>
-              <li>• Ask for variations: "more vegetables" or "less cooking time"</li>
+              <li>• Ask for variations: &quot;more vegetables&quot; or &quot;less cooking time&quot;</li>
             </ul>
           </CardContent>
         </Card>
