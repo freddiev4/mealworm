@@ -1,8 +1,6 @@
 """Dynamic instruction template builder for meal planning agent."""
 
 from datetime import datetime, timedelta
-from typing import Optional
-from sqlalchemy.orm import Session
 
 from mealworm.db.models import UserPreferences
 

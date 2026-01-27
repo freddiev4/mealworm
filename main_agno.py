@@ -13,7 +13,6 @@ Options:
 import argparse
 import sys
 
-from pathlib import Path
 
 from mealworm.agents.meal_planner import create_meal_planning_agent, START_OF_WEEK
 from openinference.instrumentation.agno import AgnoInstrumentor

@@ -39,7 +39,8 @@ def main():
         help="Output format for the meal plan",
     )
 
-    args = parser.parse_args()
+    # TODO: Remove this
+    # args = parser.parse_args()
 
     try:
         # Validate configuration
@@ -74,10 +75,10 @@ def main():
         print("SUMMARY")
         print("=" * 50)
         print(f"📊 Total meals found in Notion: {len(result.existing_meals)}")
-        print(f"🎯 Planning completed successfully!")
+        print("🎯 Planning completed successfully!")
 
         if result.meal_preferences.get("analysis"):
-            print(f"\n📈 Meal Analysis:")
+            print("\n📈 Meal Analysis:")
             print(result.meal_preferences["analysis"])
 
     except KeyboardInterrupt:
