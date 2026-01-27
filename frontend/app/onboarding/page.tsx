@@ -37,7 +37,7 @@ export default function OnboardingPage() {
 
   // Step 4: Additional
   const [saucePreference, setSaucePreference] = useState(
-    "Every meal should have some kind of sauce on top. I don&apos;t like dry meals."
+    "Every meal should have some kind of sauce on top. I don't like dry meals."
   );
   const [easyMealPreference, setEasyMealPreference] = useState(
     "I prefer one super easy meal where I can buy the ingredients mostly pre-made & frozen."
