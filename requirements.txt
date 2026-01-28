@@ -99,7 +99,6 @@ pyrepl==0.11.4
 python-dotenv==1.1.1
 python-multipart==0.0.20
 PyYAML==6.0.2
-quotientai==0.4.13
 referencing==0.36.2
 regex==2025.8.29
 requests==2.32.5

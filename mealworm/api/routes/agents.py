@@ -9,7 +9,6 @@ from fastapi.responses import StreamingResponse
 from opentelemetry.trace import use_span
 from pydantic import BaseModel
 
-from mealworm.api.monitoring import quotient
 from mealworm.agents.meal_planner import load_meal_plans_to_vector_db
 from mealworm.agents.selector import AgentType, get_agent, get_available_agents
 from mealworm.api.auth.dependencies import get_current_user
@@ -60,7 +59,6 @@ async def chat_response_streamer(agent: Agent, message: str) -> AsyncGenerator:
     Yields:
         Text chunks from the agent response
     """
-    root_span = quotient.tracer.start_span(f"{agent.name}-run")
 
     stream_ctx = use_span(root_span, end_on_exit=False)
 
@@ -80,9 +78,6 @@ async def chat_response_streamer(agent: Agent, message: str) -> AsyncGenerator:
     except Exception as e:
         logger.error(f"Error in chat_response_streamer: {e}", exc_info=True)
         yield f"\n\nError: {str(e)}\n\nThis appears to be a connection issue with the AI provider. Please try again.\n"
-    finally:
-        root_span.end()
-        quotient.force_flush()
 
 
 class RunRequest(BaseModel):

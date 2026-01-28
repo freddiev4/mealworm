@@ -82,7 +82,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 ANTHROPIC_API_KEY=your_anthropic_key
 TAVILY_API_KEY=your_tavily_key
 FIRECRAWL_API_KEY=your_firecrawl_key
-QUOTIENT_API_KEY=your_quotient_key
+
 
 # Database Configuration (defaults provided)
 DB_USER=ai
@@ -155,7 +155,6 @@ Here's a concise read on your meal history and how to use it for weekly planning
 - `ANTHROPIC_API_KEY`: Your Anthropic API key (optional)
 - `TAVILY_API_KEY`: Your Tavily API key (optional)
 - `FIRECRAWL_API_KEY`: Your Firecrawl API key (optional)
-- `QUOTIENT_API_KEY`: Your Quotient API key (optional)
 
 ### Customization
 
