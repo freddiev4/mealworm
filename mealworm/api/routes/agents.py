@@ -77,7 +77,7 @@ async def chat_response_streamer(agent: Agent, message: str) -> AsyncGenerator:
                         yield content
     except Exception as e:
         logger.error(f"Error in chat_response_streamer: {e}", exc_info=True)
-        yield f"\n\nError: {str(e)}\n\nThis appears to be a connection issue with the AI provider. Please try again.\n"
+        yield f"\n\nError: {str(e)}\n\nThis appears to be a connection issue with the AI provider. Please try again.\n" 
 
 
 class RunRequest(BaseModel):
