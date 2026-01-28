@@ -19,7 +19,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: ${IMAGE_NAME:-mealworm-api}:${IMAGE_TAG:-latest}
-    command: uvicorn mealworm.api.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
     ports:
       - "8000:8000"
