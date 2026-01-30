@@ -60,21 +60,20 @@ async def chat_response_streamer(agent: Agent, message: str) -> AsyncGenerator:
         Text chunks from the agent response
     """
 
-    stream_ctx = use_span(root_span, end_on_exit=False)
 
     try:
-        with stream_ctx:
-            # Use agno streaming (returns a synchronous generator)
-            response_stream = agent.run(message, stream=True)
+        
+        # Use agno streaming (returns a synchronous generator)
+        response_stream = agent.run(message, stream=True)
 
-            for chunk in response_stream:
-                # Filter to only stream actual response content, not tool usage narration
-                if hasattr(chunk, "content") and chunk.content:
-                    content = chunk.content
+        for chunk in response_stream:
+            # Filter to only stream actual response content, not tool usage narration
+            if hasattr(chunk, "content") and chunk.content:
+                content = chunk.content
 
-                    # Skip tool execution timing messages
-                    if "completed in" not in content:
-                        yield content
+                # Skip tool execution timing messages
+                if "completed in" not in content:
+                    yield content
     except Exception as e:
         logger.error(f"Error in chat_response_streamer: {e}", exc_info=True)
         yield f"\n\nError: {str(e)}\n\nThis appears to be a connection issue with the AI provider. Please try again.\n" 
