@@ -1,26 +1,30 @@
 """Authentication API endpoints."""
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response
-from sqlalchemy.orm import Session
-from pydantic import BaseModel, EmailStr
+import sys
 from datetime import timedelta, datetime
-
-from mealworm.db.session import get_db
-from mealworm.db.models import User, UserPreferences
-from mealworm.api.auth.jwt import (
-    create_access_token,
-    verify_password,
-    get_password_hash,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-)
-from mealworm.api.auth.dependencies import get_current_user
 from os import getenv
 
+from fastapi import APIRouter, Depends, HTTPException, status, Response
+from pydantic import BaseModel, EmailStr
+from sqlalchemy.orm import Session
+
+from mealworm.api.auth.dependencies import get_current_user
+from mealworm.api.auth.jwt import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    create_access_token,
+    get_password_hash,
+    verify_password,
+)
+from mealworm.db.models import User, UserPreferences
+from mealworm.db.session import get_db
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 # Development mode - allows cross-origin cookies without HTTPS
 IS_DEVELOPMENT = getenv("ENVIRONMENT", "development") == "development"
+
+# Partitioned cookie (CHIPS) only supported in Python 3.14+; omit on 3.12 to avoid ValueError
+SUPPORTS_PARTITIONED_COOKIE = sys.version_info >= (3, 14)
 
 
 class RegisterRequest(BaseModel):
@@ -110,18 +114,18 @@ async def register(
     )
 
     # Set httpOnly cookie (for browsers that support it)
-    # In development: Also return token in response body for easier local development
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=not IS_DEVELOPMENT,  # False in dev, True in production
-        samesite="none"
-        if not IS_DEVELOPMENT
-        else "lax",  # none for cross-origin, lax for production
-        partitioned=True,  # Required for cross-site cookies (CHIPS); avoids browser rejection
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-    )
+    # partitioned only on Python 3.14+ (Starlette raises on 3.12)
+    cookie_kwargs = {
+        "key": "access_token",
+        "value": access_token,
+        "httponly": True,
+        "secure": not IS_DEVELOPMENT,
+        "samesite": "none" if not IS_DEVELOPMENT else "lax",
+        "max_age": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+    }
+    if SUPPORTS_PARTITIONED_COOKIE:
+        cookie_kwargs["partitioned"] = True
+    response.set_cookie(**cookie_kwargs)
 
     return AuthResponse(
         user=UserResponse.model_validate(new_user),
@@ -166,18 +170,18 @@ async def login(body: LoginRequest, response: Response, db: Session = Depends(ge
     )
 
     # Set httpOnly cookie (for browsers that support it)
-    # In development: Also return token in response body for easier local development
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=not IS_DEVELOPMENT,  # False in dev, True in production
-        samesite="none"
-        if not IS_DEVELOPMENT
-        else "lax",  # none for cross-origin, lax for production
-        partitioned=True,  # Required for cross-site cookies (CHIPS); avoids browser rejection
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-    )
+    # partitioned only on Python 3.14+ (Starlette raises on 3.12)
+    cookie_kwargs = {
+        "key": "access_token",
+        "value": access_token,
+        "httponly": True,
+        "secure": not IS_DEVELOPMENT,
+        "samesite": "none" if not IS_DEVELOPMENT else "lax",
+        "max_age": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+    }
+    if SUPPORTS_PARTITIONED_COOKIE:
+        cookie_kwargs["partitioned"] = True
+    response.set_cookie(**cookie_kwargs)
 
     return AuthResponse(
         user=UserResponse.model_validate(user),
