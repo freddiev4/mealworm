@@ -31,13 +31,14 @@ class ApiSettings(BaseSettings):
             elif isinstance(cors_origin_list, list):
                 valid_cors = list(cors_origin_list)
 
-        # Built-in origins: localhost, Agno playground, and production Vercel frontend.
-        # These are always allowed; env additions are merged in (no duplicates).
+        # Built-in origins: localhost, Agno playground, and Vercel frontend URLs.
+        # Add more via CORS_ORIGIN_LIST (comma-separated) for preview deployments.
         defaults = [
             "https://app.agno.com",
             "http://localhost",
             "http://localhost:3000",
             "https://mealworm-zeta.vercel.app",
+            "https://mealworm.vercel.app",
         ]
         # Append each default only if not already present (avoids duplicates).
         seen = set(valid_cors)
