@@ -119,7 +119,7 @@ async def register(
         samesite="none"
         if not IS_DEVELOPMENT
         else "lax",  # none for cross-origin, lax for production
-        partitioned=not IS_DEVELOPMENT,  # Required for cross-site cookies (CHIPS)
+        partitioned=True,  # Required for cross-site cookies (CHIPS); avoids browser rejection
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
@@ -175,7 +175,7 @@ async def login(body: LoginRequest, response: Response, db: Session = Depends(ge
         samesite="none"
         if not IS_DEVELOPMENT
         else "lax",  # none for cross-origin, lax for production
-        partitioned=not IS_DEVELOPMENT,  # Required for cross-site cookies (CHIPS)
+        partitioned=True,  # Required for cross-site cookies (CHIPS); avoids browser rejection
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
