@@ -4,6 +4,8 @@ import { RunRequest } from "@/types/agent";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const TOKEN_KEY = "access_token";
+/** 7 days in seconds, match backend token expiry */
+const TOKEN_MAX_AGE = 60 * 60 * 24 * 7;
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -12,7 +14,7 @@ class ApiError extends Error {
   }
 }
 
-// Token management
+// Token management: localStorage (for API calls) + cookie on this domain (for middleware)
 function getToken(): string | null {
   if (typeof window !== "undefined") {
     return localStorage.getItem(TOKEN_KEY);
@@ -23,12 +25,16 @@ function getToken(): string | null {
 function setToken(token: string): void {
   if (typeof window !== "undefined") {
     localStorage.setItem(TOKEN_KEY, token);
+    // Set cookie on this origin so Next.js middleware sees it (backend cookie is on API domain only)
+    const secure = window.location.protocol === "https:";
+    document.cookie = `access_token=${encodeURIComponent(token)}; path=/; max-age=${TOKEN_MAX_AGE}; SameSite=Lax${secure ? "; Secure" : ""}`;
   }
 }
 
 function removeToken(): void {
   if (typeof window !== "undefined") {
     localStorage.removeItem(TOKEN_KEY);
+    document.cookie = "access_token=; path=/; max-age=0";
   }
 }
 
