@@ -1,5 +1,6 @@
 """Authentication API endpoints."""
 
+import logging
 import sys
 from datetime import timedelta, datetime
 from os import getenv
@@ -18,6 +19,7 @@ from mealworm.api.auth.jwt import (
 from mealworm.db.models import User, UserPreferences
 from mealworm.db.session import get_db
 
+logger = logging.getLogger(__name__)
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 # Development mode - allows cross-origin cookies without HTTPS
@@ -152,7 +154,14 @@ async def login(body: LoginRequest, response: Response, db: Session = Depends(ge
     """
     user = db.query(User).filter(User.email == body.email).first()
 
-    if not user or not verify_password(body.password, user.hashed_password):
+    if not user:
+        logger.info("Login 401: no user for email=%s", body.email)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+        )
+    if not verify_password(body.password, user.hashed_password):
+        logger.info("Login 401: password mismatch for email=%s", body.email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
