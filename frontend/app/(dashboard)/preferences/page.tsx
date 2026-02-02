@@ -122,61 +122,41 @@ export default function PreferencesPage() {
         </div>
 
         <div className="space-y-6">
-          {/* Meal Plan Requirements */}
+          
+
+          {/* Dietary Restrictions */}
           <Card>
             <CardHeader>
-              <CardTitle>Meal Plan Requirements</CardTitle>
-              <CardDescription>Set your weekly meal planning rules</CardDescription>
+              <CardTitle>Dietary Restrictions</CardTitle>
+              <CardDescription>Health and allergy considerations</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="chicken">Chicken dishes per week</Label>
-                  <Input
-                    id="chicken"
-                    type="number"
-                    min="0"
-                    max="7"
-                    value={chickenDishes}
-                    onChange={(e) => setChickenDishes(parseInt(e.target.value) || 0)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="fish">Fish dishes per week</Label>
-                  <Input
-                    id="fish"
-                    type="number"
-                    min="0"
-                    max="7"
-                    value={fishDishes}
-                    onChange={(e) => setFishDishes(parseInt(e.target.value) || 0)}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="restrictions">Dietary restrictions (comma-separated)</Label>
+                <Input
+                  id="restrictions"
+                  placeholder="vegetarian, gluten-free, dairy-free"
+                  value={dietaryRestrictions}
+                  onChange={(e) => setDietaryRestrictions(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="eatingOut">Eating out days (comma-separated)</Label>
+                <Label htmlFor="allergens">Allergens (comma-separated)</Label>
                 <Input
-                  id="eatingOut"
-                  placeholder="Friday, Saturday"
-                  value={eatingOutDays}
-                  onChange={(e) => setEatingOutDays(e.target.value)}
+                  id="allergens"
+                  placeholder="nuts, shellfish, soy"
+                  value={allergens}
+                  onChange={(e) => setAllergens(e.target.value)}
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="vegetables"
-                  checked={vegetablesRequired}
-                  onChange={(e: any) => setVegetablesRequired(e.target.checked)}
+              <div className="space-y-2">
+                <Label htmlFor="avoid">Meal types to avoid (comma-separated)</Label>
+                <Input
+                  id="avoid"
+                  placeholder="stir fry, casserole"
+                  value={avoidMealTypes}
+                  onChange={(e) => setAvoidMealTypes(e.target.value)}
                 />
-                <Label htmlFor="vegetables">Vegetables required in every meal</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="leftovers"
-                  checked={leftoversForLunch}
-                  onChange={(e: any) => setLeftoversForLunch(e.target.checked)}
-                />
-                <Label htmlFor="leftovers">Use leftovers for lunch</Label>
               </div>
             </CardContent>
           </Card>
@@ -238,39 +218,61 @@ export default function PreferencesPage() {
             </CardContent>
           </Card>
 
-          {/* Dietary Restrictions */}
+          {/* Meal Plan Requirements */}
           <Card>
             <CardHeader>
-              <CardTitle>Dietary Restrictions</CardTitle>
-              <CardDescription>Health and allergy considerations</CardDescription>
+              <CardTitle>Meal Plan Requirements</CardTitle>
+              <CardDescription>Set your weekly meal planning rules</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="restrictions">Dietary restrictions (comma-separated)</Label>
-                <Input
-                  id="restrictions"
-                  placeholder="vegetarian, gluten-free, dairy-free"
-                  value={dietaryRestrictions}
-                  onChange={(e) => setDietaryRestrictions(e.target.value)}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="chicken">Chicken dishes per week</Label>
+                  <Input
+                    id="chicken"
+                    type="number"
+                    min="0"
+                    max="7"
+                    value={chickenDishes}
+                    onChange={(e) => setChickenDishes(parseInt(e.target.value) || 0)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fish">Fish dishes per week</Label>
+                  <Input
+                    id="fish"
+                    type="number"
+                    min="0"
+                    max="7"
+                    value={fishDishes}
+                    onChange={(e) => setFishDishes(parseInt(e.target.value) || 0)}
+                  />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="allergens">Allergens (comma-separated)</Label>
+                <Label htmlFor="eatingOut">Eating out days (comma-separated)</Label>
                 <Input
-                  id="allergens"
-                  placeholder="nuts, shellfish, soy"
-                  value={allergens}
-                  onChange={(e) => setAllergens(e.target.value)}
+                  id="eatingOut"
+                  placeholder="Friday, Saturday"
+                  value={eatingOutDays}
+                  onChange={(e) => setEatingOutDays(e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="avoid">Meal types to avoid (comma-separated)</Label>
-                <Input
-                  id="avoid"
-                  placeholder="stir fry, casserole"
-                  value={avoidMealTypes}
-                  onChange={(e) => setAvoidMealTypes(e.target.value)}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="vegetables"
+                  checked={vegetablesRequired}
+                  onChange={(e: any) => setVegetablesRequired(e.target.checked)}
                 />
+                <Label htmlFor="vegetables">Vegetables required in every meal</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="leftovers"
+                  checked={leftoversForLunch}
+                  onChange={(e: any) => setLeftoversForLunch(e.target.checked)}
+                />
+                <Label htmlFor="leftovers">Use leftovers for lunch</Label>
               </div>
             </CardContent>
           </Card>
