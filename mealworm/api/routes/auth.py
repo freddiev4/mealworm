@@ -69,7 +69,7 @@ async def register(
     body: RegisterRequest, response: Response, db: Session = Depends(get_db)
 ):
     """
-    Register a new user. Only allows ONE user to be created (single-user system).
+    Register a new user.
 
     Args:
         body: Registration request with email and password
@@ -80,16 +80,8 @@ async def register(
         AuthResponse with user object and access token
 
     Raises:
-        HTTPException: If user already exists
+        HTTPException: If email already registered
     """
-    # Check if a user already exists (single-user system)
-    existing_user_count = db.query(User).count()
-    if existing_user_count > 0:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User already exists. This is a single-user system.",
-        )
-
     # Check if email is already registered
     existing_user = db.query(User).filter(User.email == body.email).first()
     if existing_user:
