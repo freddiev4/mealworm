@@ -8,7 +8,6 @@ from agno.knowledge.reader.markdown_reader import MarkdownReader
 from agno.models.anthropic import Claude
 from agno.models.openai import OpenAIChat
 from agno.tools.firecrawl import FirecrawlTools
-from agno.tools.local_file_system import LocalFileSystemTools
 from agno.tools.tavily import TavilyTools
 from agno.vectordb.pgvector import PgVector
 from sqlalchemy.orm import Session
@@ -136,7 +135,6 @@ async def create_meal_planning_agent(
         tools=[
             TavilyTools(),
             FirecrawlTools(enable_scrape=True, enable_crawl=True),
-            LocalFileSystemTools(target_directory="."),
         ],
         knowledge=await get_meal_planning_knowledge(),
         search_knowledge=True,
