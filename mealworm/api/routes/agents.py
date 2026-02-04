@@ -12,7 +12,8 @@ from pydantic import BaseModel
 from mealworm.agents.meal_planner import load_meal_plans_to_vector_db
 from mealworm.agents.selector import AgentType, get_agent, get_available_agents
 from mealworm.api.auth.dependencies import get_current_user
-from mealworm.db.models import User
+from mealworm.db.models import User, GeneratedMealPlan
+from mealworm.db.session import SessionLocal
 
 logger = getLogger(__name__)
 
@@ -120,16 +121,50 @@ async def create_agent_run(
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    
+    # Get the last 30 meal plans for the user
+    db = SessionLocal()
+    try:
+        last_plans = (
+            db.query(GeneratedMealPlan)
+            .filter(GeneratedMealPlan.user_id == current_user.id)
+            .order_by(GeneratedMealPlan.created_at.desc())
+            .limit(30)
+            .all()
+        )
+    finally:
+        db.close()
+        
+    # Build the last 30 plans section
+    last_plans_text_parts = []
+    for plan in last_plans:
+        # Optional: add a small header per plan so the agent knows which week
+        last_plans_text_parts.append(
+            f"--- Meal plan (week starting {plan.week_starting}) ---\n{plan.markdown_content}"
+        )
+    last_30_plans_section = "\n\n".join(last_plans_text_parts)
+
+    # Build the message to the agent
+    if last_30_plans_section:
+        message_to_agent = (
+            "Here are the user's last 30 generated meal plans (use these to avoid repeating recent meals):\n\n"
+            + last_30_plans_section
+            + "\n\n--- User request ---\n\n"
+            + body.message
+        )
+    else:
+        message_to_agent = body.message
+    
 
     if body.stream:
         response = StreamingResponse(
-            chat_response_streamer(agent, body.message),
+            chat_response_streamer(agent, message_to_agent),
             media_type="text/event-stream",
         )
         return response
     else:
         # Use agno non-streaming run
-        result = agent.run(body.message, stream=False)
+        result = agent.run(message_to_agent, stream=False)
         # Return the content from the agno RunResponse
         return {
             "content": result.content if hasattr(result, "content") else str(result)
